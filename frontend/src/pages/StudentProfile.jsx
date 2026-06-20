@@ -1,0 +1,148 @@
+import React, { useState, useEffect } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '../components/Card';
+import Input from '../components/Input';
+import Button from '../components/Button';
+import LoadingState from '../components/LoadingState';
+import studentService from '../services/studentService';
+
+const StudentProfile = () => {
+  const [profile, setProfile] = useState({
+    college: '',
+    branch: '',
+    year: '',
+    cgpa: '',
+    skills: '',
+    resume: '',
+    github: '',
+    linkedin: ''
+  });
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(false);
+
+  useEffect(() => {
+    fetchProfile();
+  }, []);
+
+  const fetchProfile = async () => {
+    try {
+      setLoading(true);
+      const data = await studentService.getProfile();
+      // Backend might return nested profile object or flat, adapting here
+      const p = data.profile || {};
+      setProfile({
+        college: p.college || '',
+        branch: p.branch || '',
+        year: p.year || '',
+        cgpa: p.cgpa || '',
+        skills: p.skills ? p.skills.join(', ') : '',
+        resume: p.resume || '',
+        github: p.github || '',
+        linkedin: p.linkedin || ''
+      });
+    } catch (err) {
+      setError('Failed to load profile data.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleChange = (e) => {
+    setProfile({ ...profile, [e.target.name]: e.target.value });
+    setSuccess(false);
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      setSaving(true);
+      setError(null);
+      // Process skills into array before sending
+      const payload = {
+        ...profile,
+        skills: profile.skills.split(',').map(s => s.trim()).filter(Boolean)
+      };
+      await studentService.updateProfile(payload);
+      setSuccess(true);
+      setTimeout(() => setSuccess(false), 3000);
+    } catch (err) {
+      setError('Failed to update profile. Please try again.');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  if (loading) return <LoadingState message="Loading your profile..." />;
+
+  return (
+    <div className="max-w-4xl mx-auto space-y-6">
+      <div className="mb-8">
+        <h1 className="text-2xl font-bold text-gray-900 tracking-tight">My Profile</h1>
+        <p className="text-gray-500 mt-1">Manage your academic details, skills, and links to stand out to recruiters.</p>
+      </div>
+
+      <form onSubmit={handleSubmit} className="space-y-6">
+        {error && <div className="p-4 text-sm text-red-600 bg-red-50 rounded-md border border-red-200">{error}</div>}
+        {success && <div className="p-4 text-sm text-green-600 bg-green-50 rounded-md border border-green-200">Profile updated successfully!</div>}
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Academic Details</CardTitle>
+            <p className="text-sm text-gray-500 mt-1">Your current educational status and performance.</p>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <Input label="College / University" name="college" value={profile.college} onChange={handleChange} placeholder="e.g. State University" />
+              <Input label="Branch / Major" name="branch" value={profile.branch} onChange={handleChange} placeholder="e.g. Computer Science" />
+              <Input label="Graduation Year" name="year" type="number" value={profile.year} onChange={handleChange} placeholder="e.g. 2025" />
+              <Input label="CGPA" name="cgpa" type="number" step="0.01" value={profile.cgpa} onChange={handleChange} placeholder="e.g. 3.8" />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Skills & Resume</CardTitle>
+            <p className="text-sm text-gray-500 mt-1">Highlight your technical skills and upload your resume.</p>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-1">
+              <label className="block text-sm font-medium text-gray-700">Skills (comma separated)</label>
+              <textarea 
+                name="skills"
+                rows="3"
+                value={profile.skills}
+                onChange={handleChange}
+                placeholder="e.g. React, Node.js, Python, AWS"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 sm:text-sm transition-colors"
+              />
+            </div>
+            <Input label="Resume URL" name="resume" value={profile.resume} onChange={handleChange} placeholder="Link to your resume (Google Drive, DropBox, etc.)" />
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Professional Links</CardTitle>
+            <p className="text-sm text-gray-500 mt-1">Links to your professional portfolios and profiles.</p>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <Input label="GitHub Profile URL" name="github" value={profile.github} onChange={handleChange} placeholder="https://github.com/yourusername" />
+              <Input label="LinkedIn Profile URL" name="linkedin" value={profile.linkedin} onChange={handleChange} placeholder="https://linkedin.com/in/yourusername" />
+            </div>
+          </CardContent>
+        </Card>
+
+        <div className="flex justify-end">
+          <Button type="submit" size="lg" disabled={saving}>
+            {saving ? 'Saving Changes...' : 'Save Profile'}
+          </Button>
+        </div>
+      </form>
+    </div>
+  );
+};
+
+export default StudentProfile;

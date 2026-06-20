@@ -1,0 +1,66 @@
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider } from './context/AuthContext';
+import ProtectedRoute from './components/ProtectedRoute';
+import Login from './pages/Login';
+import Register from './pages/Register';
+import DashboardLayout from './layouts/DashboardLayout';
+import StudentDashboard from './pages/StudentDashboard';
+import RecruiterDashboard from './pages/RecruiterDashboard';
+import AdminDashboard from './pages/AdminDashboard';
+import CreateJob from './pages/CreateJob';
+import StudentJobs from './pages/StudentJobs';
+import StudentApplications from './pages/StudentApplications';
+import StudentProfile from './pages/StudentProfile';
+import RecruiterJobs from './pages/RecruiterJobs';
+import RecruiterApplicants from './pages/RecruiterApplicants';
+
+function App() {
+  return (
+    <AuthProvider>
+      <Router>
+        <div className="min-h-screen bg-background">
+          <Routes>
+            {/* Public Routes */}
+            <Route path="/" element={<Navigate to="/login" replace />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/unauthorized" element={<div className="p-8 text-center text-red-500 text-2xl">Unauthorized Access</div>} />
+
+            {/* Protected Routes wrapped in DashboardLayout */}
+            <Route element={<ProtectedRoute />}>
+              <Route element={<DashboardLayout />}>
+                
+                {/* Role-based Protected Routes */}
+                <Route element={<ProtectedRoute allowedRoles={['student']} />}>
+                  <Route path="/student/dashboard" element={<StudentDashboard />} />
+                  <Route path="/student/jobs" element={<StudentJobs />} />
+                  <Route path="/student/applications" element={<StudentApplications />} />
+                  <Route path="/student/profile" element={<StudentProfile />} />
+                  <Route path="/student/*" element={<div className="p-8 text-center text-gray-500">Page under construction</div>} />
+                </Route>
+
+                <Route element={<ProtectedRoute allowedRoles={['recruiter']} />}>
+                  <Route path="/recruiter/dashboard" element={<RecruiterDashboard />} />
+                  <Route path="/recruiter/jobs" element={<RecruiterJobs />} />
+                  <Route path="/recruiter/jobs/create" element={<CreateJob />} />
+                  <Route path="/recruiter/jobs/edit/:id" element={<CreateJob />} />
+                  <Route path="/recruiter/applicants" element={<RecruiterApplicants />} />
+                  <Route path="/recruiter/*" element={<div className="p-8 text-center text-gray-500">Page under construction</div>} />
+                </Route>
+
+                <Route element={<ProtectedRoute allowedRoles={['admin']} />}>
+                  <Route path="/admin/dashboard" element={<AdminDashboard />} />
+                  <Route path="/admin/*" element={<div className="p-8 text-center text-gray-500">Page under construction</div>} />
+                </Route>
+                
+              </Route>
+            </Route>
+
+          </Routes>
+        </div>
+      </Router>
+    </AuthProvider>
+  );
+}
+
+export default App;
