@@ -61,13 +61,6 @@ const StudentProfile = () => {
     try {
       setSaving(true);
       setError(null);
-      // Process skills into array before sending
-      const payload = {
-        ...profile,
-        skills: profile.skills.split(',').map(s => s.trim()).filter(Boolean)
-      };
-      await studentService.updateProfile(payload);
-      
       if (resumeFile) {
         console.log("Uploading real PDF", resumeFile);
         setUploadingResume(true);
@@ -75,6 +68,13 @@ const StudentProfile = () => {
         await studentService.uploadResume(resumeFile);
         setResumeFile(null); // Clear after upload
       }
+
+      // Process skills into array before sending
+      const payload = {
+        ...profile,
+        skills: profile.skills.split(',').map(s => s.trim()).filter(Boolean)
+      };
+      await studentService.updateProfile(payload);
 
       await fetchProfile(); // refresh from backend
       setSuccess(true);
@@ -87,15 +87,6 @@ const StudentProfile = () => {
     } finally {
       setSaving(false);
       setUploadingResume(false);
-    }
-  };
-
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setResumeFile(file);
-    } else {
-      setResumeFile(null);
     }
   };
 
@@ -151,7 +142,9 @@ const StudentProfile = () => {
                 <input
                   type="file"
                   accept=".pdf"
-                  onChange={handleFileChange}
+                  onChange={(e)=>{
+                    setResumeFile(e.target.files[0]);
+                  }}
                   disabled={saving || uploadingResume}
                   className="block w-full text-sm text-gray-500
                     file:mr-4 file:py-2 file:px-4

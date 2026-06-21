@@ -1,4 +1,5 @@
 const { PDFParse } = require("pdf-parse");
+const { analyzeResumeSemantics } = require("./aiResumeAnalyzer");
 
 const KNOWN_SKILLS = [
   'javascript',
@@ -194,12 +195,12 @@ const analyzeResumeText = async (text, profile = {}) => {
 
     analysis.projects = [...projects];
 
+    analysis.semanticAnalysis = analyzeResumeSemantics(textToAnalyze);
 
     console.log(
       "Resume intelligence generated safely:",
       analysis
     );
-
 
     return analysis;
 

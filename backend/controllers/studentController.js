@@ -1,5 +1,6 @@
 const User = require('../models/User');
 const { parseResumeUrl, parseResumeBuffer } = require('../services/resumeParser');
+const fs = require("fs");
 
 
 // DEFAULT RESUME ANALYSIS OBJECT
@@ -334,18 +335,18 @@ const uploadResume = async (req, res, next) => {
 
 
 
+    const buffer = fs.readFileSync(req.file.path);
+
     const analysis =
       await parseResumeBuffer(
-        req.file.buffer,
+        buffer,
         user.profile
       );
 
-
-
-
-
     user.profile.resumeUrl =
-      req.file.originalname;
+      "/uploads/resumes/" + req.file.filename;
+
+    console.log("Saved resume URL:", user.profile.resumeUrl);
 
 
 

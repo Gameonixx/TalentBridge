@@ -70,6 +70,15 @@ const RecruiterApplicants = () => {
     }
   };
 
+  const openResume = (candidate) => {
+    console.log("Candidate resume:", candidate.profile?.resumeUrl);
+    if (!candidate.profile?.resumeUrl) {
+      alert("No resume uploaded");
+      return;
+    }
+    window.open("http://localhost:5000" + candidate.profile.resumeUrl, "_blank");
+  };
+
   if (loadingJobs) return <LoadingState message="Loading your jobs..." />;
 
   return (
@@ -135,28 +144,36 @@ const RecruiterApplicants = () => {
                               <div className="mt-3 p-2.5 bg-orange-50 rounded-md border border-orange-100 space-y-1.5">
                                 <div className="flex items-center justify-between">
                                   <span className="text-sm font-bold text-orange-700">
-                                    AI Match: {app.matchDetails.matchScore}%
+                                    AI Match: {app.matchDetails.percentage}%
                                   </span>
-                                  {app.matchDetails.resumeInsights?.recommendation && (
+                                  {app.matchDetails.level && (
                                     <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
-                                      app.matchDetails.resumeInsights.recommendation === 'Strong Match' ? 'bg-green-100 text-green-800' :
-                                      app.matchDetails.resumeInsights.recommendation === 'Moderate Match' ? 'bg-yellow-100 text-yellow-800' :
+                                      app.matchDetails.level === 'Strong Match' ? 'bg-green-100 text-green-800' :
+                                      app.matchDetails.level === 'Moderate Match' ? 'bg-yellow-100 text-yellow-800' :
                                       'bg-red-100 text-red-800'
                                     }`}>
-                                      {app.matchDetails.resumeInsights.recommendation}
+                                      {app.matchDetails.level}
                                     </span>
                                   )}
                                 </div>
                                 
-                                {app.matchDetails.resumeInsights?.technologies && app.matchDetails.resumeInsights.technologies.length > 0 && (
-                                  <div className="text-xs text-gray-700">
-                                    <span className="font-semibold">Technologies Detected:</span> <span className="capitalize">{app.matchDetails.resumeInsights.technologies.join(', ')}</span>
+                                {app.matchDetails.reasons && app.matchDetails.reasons.length > 0 && (
+                                  <div className="mt-2 text-xs text-gray-700">
+                                    <div className="font-semibold mb-1 text-gray-900">Why this match:</div>
+                                    <ul className="space-y-1">
+                                      {app.matchDetails.reasons.map((reason, i) => (
+                                        <li key={i} className="flex items-center"><span className="text-green-600 mr-1">✓</span> {reason}</li>
+                                      ))}
+                                    </ul>
                                   </div>
                                 )}
                                 
                                 {app.matchDetails.missingSkills && app.matchDetails.missingSkills.length > 0 && (
-                                  <div className="text-xs text-gray-700">
-                                    <span className="font-semibold text-red-600">Missing Skills:</span> {app.matchDetails.missingSkills.join(', ')}
+                                  <div className="mt-2 text-xs text-gray-700">
+                                    <div className="font-semibold mb-1 text-red-700">Missing:</div>
+                                    <div className="flex flex-wrap gap-1">
+                                      {app.matchDetails.missingSkills.join(', ')}
+                                    </div>
                                   </div>
                                 )}
                               </div>
@@ -171,11 +188,12 @@ const RecruiterApplicants = () => {
                         </div>
                       </td>
                       <td className="px-6 py-4 space-y-1">
-                        {app.student.profile?.resumeUrl && (
-                          <a href={app.student.profile.resumeUrl} target="_blank" rel="noreferrer" className="flex items-center text-sm text-primary-600 hover:text-primary-900">
-                            <FileText className="w-4 h-4 mr-1" /> Resume
-                          </a>
-                        )}
+                        <button 
+                          onClick={() => openResume(app.student)}
+                          className="flex items-center text-sm text-primary-600 hover:text-primary-900 focus:outline-none"
+                        >
+                          <FileText className="w-4 h-4 mr-1" /> Resume
+                        </button>
                         {app.student.profile?.linkedinUrl && (
                           <a href={app.student.profile.linkedinUrl} target="_blank" rel="noreferrer" className="flex items-center text-sm text-primary-600 hover:text-primary-900">
                             <LinkIcon className="w-4 h-4 mr-1" /> LinkedIn

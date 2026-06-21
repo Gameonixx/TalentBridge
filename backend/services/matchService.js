@@ -8,25 +8,25 @@ const normalizeSkill = (skill) => {
 };
 
 const calculateMatchScore = (studentProfile, job, resumeAnalysis) => {
-  let score = 0;
+  let percentage = 0;
   const matchedSkills = [];
   const missingSkills = [];
-  const suggestions = [];
+  const reasons = [];
 
   const profile = studentProfile || {};
   const analysis = resumeAnalysis || {};
+  const semantic = analysis.semanticAnalysis || { skills: [], domains: [], projectCategories: [], experienceLevel: "Entry Level", strengths: [] };
   const jobRequirements = job.requirements || [];
 
-  // Combine student skills and resume extracted skills
+  // 1. Skill Similarity (60%)
   const studentSkillsRaw = [
     ...(profile.skills || []),
-    ...(analysis.extractedSkills || [])
+    ...(analysis.extractedSkills || []),
+    ...(semantic.skills || [])
   ];
   
-  // Normalize skills
   const candidateSkills = Array.from(new Set(studentSkillsRaw.map(normalizeSkill)));
   
-  // 1. Skill Compatibility (70%)
   if (jobRequirements.length > 0) {
     let matchCount = 0;
 
@@ -42,82 +42,105 @@ const calculateMatchScore = (studentProfile, job, resumeAnalysis) => {
       }
     });
 
-    score += (matchCount / jobRequirements.length) * 70;
+    percentage += (matchCount / jobRequirements.length) * 60;
   } else {
-    // If no requirements, full score
-    score += 70;
+    percentage += 60;
   }
 
-  // 2. Technology Similarity (20%)
-  // Compare analysis.technologies against job requirements
-  const candidateTechs = Array.from(new Set([
-    ...(analysis.technologies || []).map(t => t.toLowerCase().trim())
-  ]));
+  // Generate reasons from matched skills
+  if (matchedSkills.length > 0) {
+    reasons.push(`${matchedSkills.slice(0, 3).join(', ')} experience`);
+  }
 
-  if (jobRequirements.length > 0 && candidateTechs.length > 0) {
-    let techMatchCount = 0;
-    
-    jobRequirements.forEach(reqSkill => {
-      const normalizedReq = normalizeSkill(reqSkill);
-      // Determine tech category of requirement loosely
-      let reqTechCategory = null;
-      if (['react', 'html', 'css', 'javascript', 'tailwind', 'vue', 'angular'].includes(normalizedReq)) reqTechCategory = 'frontend';
-      if (['node', 'express', 'mongodb', 'sql', 'postgresql', 'mysql', 'django', 'flask', 'java', 'spring'].includes(normalizedReq)) reqTechCategory = 'backend';
-      if (['python', 'ml', 'tensorflow', 'machine learning', 'data science'].includes(normalizedReq)) reqTechCategory = 'ai/ml';
-      
-      if (reqTechCategory && candidateTechs.includes(reqTechCategory)) {
-        techMatchCount++;
+  // 2. Project/Domain Relevance (25%)
+  // Simple heuristic: if domains are mentioned in job, match them, else fallback to candidate tech or general score
+  const candidateDomains = semantic.domains || [];
+  let domainScore = 0;
+  
+  const jobText = (job.title + " " + job.description + " " + jobRequirements.join(" ")).toLowerCase();
+  let matchedDomain = null;
+  
+  if (candidateDomains.includes('Frontend') && (jobText.includes('frontend') || jobText.includes('ui') || jobText.includes('react'))) {
+    domainScore += 25;
+    matchedDomain = 'Frontend';
+  } else if (candidateDomains.includes('Backend') && (jobText.includes('backend') || jobText.includes('api') || jobText.includes('node'))) {
+    domainScore += 25;
+    matchedDomain = 'Backend';
+  } else if (candidateDomains.includes('Cloud/DevOps') && (jobText.includes('cloud') || jobText.includes('aws') || jobText.includes('devops'))) {
+    domainScore += 25;
+    matchedDomain = 'Cloud';
+  } else if (candidateDomains.includes('AI/ML') && (jobText.includes('ai') || jobText.includes('machine learning') || jobText.includes('data'))) {
+    domainScore += 25;
+    matchedDomain = 'AI/ML';
+  } else {
+    // If no specific domain matches, give partial score based on complexity or general tech presence
+    if (semantic.projectCategories && semantic.projectCategories.includes('Complex/Production-grade Systems')) {
+      domainScore += 20;
+      reasons.push('Experience with complex architectures');
+    } else if (candidateDomains.length > 0) {
+      domainScore += 15;
+    } else {
+      domainScore += 5; // Base score
+    }
+  }
+
+  percentage += domainScore;
+  if (matchedDomain) {
+    reasons.push(`${matchedDomain} projects detected`);
+  } else if (semantic.strengths && semantic.strengths.includes('Cloud exposure detected')) {
+    reasons.push('Cloud exposure');
+  } else if (analysis.projects && analysis.projects.length > 0) {
+    reasons.push('Relevant project work detected');
+  }
+
+  // 3. Experience Relevance (15%)
+  let expScore = 0;
+  const expLvl = semantic.experienceLevel || "Entry Level";
+  
+  if (jobText.includes('senior') || jobText.includes('lead') || jobText.match(/[5-9] years/)) {
+    if (expLvl === 'Senior Level') expScore = 15;
+    else if (expLvl === 'Mid Level') expScore = 7;
+    else expScore = 0;
+  } else if (jobText.includes('mid') || jobText.match(/[2-4] years/)) {
+    if (expLvl === 'Senior Level' || expLvl === 'Mid Level') expScore = 15;
+    else expScore = 8;
+  } else {
+    // Entry level job or unspecified
+    expScore = 15; // Assume entry level fits or unspecified allows anything
+  }
+  
+  percentage += expScore;
+
+  if (semantic.strengths && semantic.strengths.length > 0) {
+    // Add additional unique strengths as reasons
+    semantic.strengths.forEach(s => {
+      if (!reasons.includes(s) && !reasons.some(r => r.includes(s.split(' ')[0]))) {
+        reasons.push(s);
       }
     });
-
-    // If there's any matching technology overlap, give score based on matching ratio, or just give 20% if any match
-    // Let's do a proportional match based on total requirements, capped at 20.
-    // If they have matching tech categories for at least some of the requirements
-    const techScore = (techMatchCount / jobRequirements.length) * 20;
-    // To be generous, if they have the exact tech, or the category matches:
-    // If candidateTechs length > 0 we can give a base score + proportional
-    score += Math.max(techScore, candidateTechs.length > 0 ? 10 : 0);
-  } else if (candidateTechs.length > 0) {
-    score += 20; // Has tech, no requirements to check against
-  } else {
-    suggestions.push('Add specific technologies (e.g. React, Node, Python) to your profile/resume to improve tech match.');
   }
 
-  // Cap score to ensure it doesn't exceed 90 before completeness
-  score = Math.min(score, 90);
-
-  // 3. Profile Completeness (10%)
-  let completenessScore = 0;
-  if (profile.githubUrl) completenessScore += 3;
-  if (profile.linkedinUrl) completenessScore += 3;
-  if (profile.resumeUrl) completenessScore += 2;
-  if (profile.experience && profile.experience.length > 0) completenessScore += 2;
-  else if (analysis.experienceKeywords && analysis.experienceKeywords.length > 0) completenessScore += 2;
-  else if (analysis.projects && analysis.projects.length > 0) completenessScore += 2; // fallback
-
-  score += completenessScore;
-
-  if (completenessScore < 10) {
-    suggestions.push('Complete your profile with GitHub, LinkedIn, and resume links for a perfect score.');
+  // Add default missing skill reason if applicable
+  if (missingSkills.length > 0 && reasons.length < 3) {
+    // We don't add missing skills as a 'reason' here because UI handles Missing separately,
+    // but we can ensure reasons has something
+    if (reasons.length === 0) reasons.push('Basic criteria met');
+  } else if (reasons.length === 0) {
+    reasons.push('Strong foundational fit');
   }
 
-  if (missingSkills.length > 0) {
-    suggestions.push(`Learn ${missingSkills.slice(0, 2).join(' and ')} to improve compatibility.`);
-  }
+  percentage = Math.min(Math.round(percentage), 100);
 
-  let recommendation = 'Low Match';
-  if (score >= 80) recommendation = 'Strong Match';
-  else if (score >= 50) recommendation = 'Moderate Match';
+  let level = 'Low Match';
+  if (percentage >= 80) level = 'Strong Match';
+  else if (percentage >= 50) level = 'Moderate Match';
 
   return {
-    matchScore: Math.round(score),
+    percentage,
+    level,
     matchedSkills: [...new Set(matchedSkills)],
     missingSkills: [...new Set(missingSkills)],
-    resumeInsights: {
-      technologies: candidateTechs,
-      recommendation
-    },
-    suggestions: [...new Set(suggestions)],
+    reasons: [...new Set(reasons)].slice(0, 4) // Keep top 4 reasons
   };
 };
 

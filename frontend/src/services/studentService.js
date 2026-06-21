@@ -12,13 +12,15 @@ const studentService = {
   },
 
   uploadResume: async (file) => {
+    console.log("Calling backend resume API");
     const formData = new FormData();
-    formData.append('resume', file);
-    const response = await api.post('/api/student/resume', formData, {
+    formData.append("resume", file);
+    const response = await api.post("/api/student/resume", formData, {
       headers: {
-        'Content-Type': 'multipart/form-data'
+        "Content-Type": "multipart/form-data"
       }
     });
+    console.log("Resume API response", response.data);
     return response.data;
   }
 };

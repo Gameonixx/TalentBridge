@@ -3,16 +3,25 @@ const router = express.Router();
 const { getProfile, updateProfile, uploadResume } = require('../controllers/studentController');
 const { protect, authorize } = require('../middleware/authMiddleware');
 const multer = require('multer');
+const path = require('path');
 
-// Configure multer for memory storage to parse PDF directly
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'uploads/resumes');
+  },
+  filename: (req, file, cb) => {
+    const uniqueName = Date.now() + '-' + file.originalname;
+    cb(null, uniqueName);
+  }
+});
+
 const upload = multer({
-  storage: multer.memoryStorage(),
-  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
+  storage,
   fileFilter: (req, file, cb) => {
     if (file.mimetype === 'application/pdf') {
       cb(null, true);
     } else {
-      cb(new Error('Only PDF files are allowed!'), false);
+      cb(new Error('Only PDF files allowed'));
     }
   }
 });

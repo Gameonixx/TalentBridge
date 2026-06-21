@@ -92,7 +92,7 @@ const StudentJobs = () => {
                         <h2 className="text-xl font-semibold text-gray-900">{job.title}</h2>
                         {matchData[job._id] && (
                           <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-orange-100 text-orange-800">
-                            🔥 {matchData[job._id].matchScore}% Match
+                            🔥 {matchData[job._id].percentage}% Match
                           </span>
                         )}
                       </div>
