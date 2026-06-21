@@ -132,15 +132,31 @@ const RecruiterApplicants = () => {
                             <div className="text-sm font-medium text-gray-900">{app.student.name}</div>
                             <div className="text-sm text-gray-500">{app.student.email}</div>
                             {app.matchDetails && (
-                              <div className="mt-2 space-y-1">
-                                <div className="text-sm font-semibold text-orange-600">
-                                  Match Score: {app.matchDetails.matchScore}%
+                              <div className="mt-3 p-2.5 bg-orange-50 rounded-md border border-orange-100 space-y-1.5">
+                                <div className="flex items-center justify-between">
+                                  <span className="text-sm font-bold text-orange-700">
+                                    AI Match: {app.matchDetails.matchScore}%
+                                  </span>
+                                  {app.matchDetails.resumeInsights?.recommendation && (
+                                    <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
+                                      app.matchDetails.resumeInsights.recommendation === 'Strong Match' ? 'bg-green-100 text-green-800' :
+                                      app.matchDetails.resumeInsights.recommendation === 'Moderate Match' ? 'bg-yellow-100 text-yellow-800' :
+                                      'bg-red-100 text-red-800'
+                                    }`}>
+                                      {app.matchDetails.resumeInsights.recommendation}
+                                    </span>
+                                  )}
                                 </div>
-                                {app.matchDetails.matchedSkills && app.matchDetails.matchedSkills.length > 0 && (
-                                  <div className="text-xs text-gray-600">
-                                    <span className="font-medium">Skills matched:</span>
-                                    <br/>
-                                    {app.matchDetails.matchedSkills.join(', ')}
+                                
+                                {app.matchDetails.resumeInsights?.technologies && app.matchDetails.resumeInsights.technologies.length > 0 && (
+                                  <div className="text-xs text-gray-700">
+                                    <span className="font-semibold">Technologies Detected:</span> <span className="capitalize">{app.matchDetails.resumeInsights.technologies.join(', ')}</span>
+                                  </div>
+                                )}
+                                
+                                {app.matchDetails.missingSkills && app.matchDetails.missingSkills.length > 0 && (
+                                  <div className="text-xs text-gray-700">
+                                    <span className="font-semibold text-red-600">Missing Skills:</span> {app.matchDetails.missingSkills.join(', ')}
                                   </div>
                                 )}
                               </div>

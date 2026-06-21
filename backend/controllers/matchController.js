@@ -19,7 +19,7 @@ const getJobMatch = async (req, res, next) => {
       throw new Error('Only students can get match scores');
     }
 
-    const matchResult = calculateMatchScore(user.profile, job);
+    const matchResult = calculateMatchScore(user.profile, job, user.resumeAnalysis);
     res.status(200).json(matchResult);
   } catch (error) {
     console.error('Match Calculation Error:', error);

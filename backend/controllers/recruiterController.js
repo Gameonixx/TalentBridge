@@ -67,13 +67,13 @@ const getJobApplicants = async (req, res, next) => {
     }
 
     const applications = await Application.find({ job: jobId })
-      .populate('student', 'name email profile')
+      .populate('student', 'name email profile resumeAnalysis')
       .sort({ createdAt: -1 });
 
     const applicationsWithScores = applications.map(app => {
       const appObj = app.toObject();
       if (appObj.student && appObj.student.profile) {
-        appObj.matchDetails = calculateMatchScore(appObj.student.profile, job);
+        appObj.matchDetails = calculateMatchScore(appObj.student.profile, job, appObj.student.resumeAnalysis);
       }
       return appObj;
     });

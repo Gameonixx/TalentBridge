@@ -40,7 +40,16 @@ const userSchema = new mongoose.Schema({
       role: String,
       duration: String,
       description: String
-    }]
+    }],
+    resumeAnalysis: {
+      type: mongoose.Schema.Types.Mixed,
+      default: {
+        extractedSkills: [],
+        technologies: [],
+        experienceKeywords: [],
+        projects: []
+      }
+    }
   },
   // Recruiter specific data
   company: {
@@ -49,14 +58,14 @@ const userSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 // Hash password before saving
-userSchema.pre('save', async function() {
+userSchema.pre('save', async function () {
   if (!this.isModified('password')) return;
   const salt = await bcrypt.genSalt(10);
   this.password = await bcrypt.hash(this.password, salt);
 });
 
 // Compare password method
-userSchema.methods.matchPassword = async function(enteredPassword) {
+userSchema.methods.matchPassword = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
 };
 
