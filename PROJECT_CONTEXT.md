@@ -9,31 +9,6 @@ A production-quality MERN SaaS platform that replaces manual university placemen
 Goal:
 Connect Students, Recruiters, and Placement Administrators.
 
-This is NOT a demo website.
-Build like a real SaaS product.
-
-Design inspiration:
-- LinkedIn Recruiter
-- Greenhouse
-- Lever
-- Linear
-- Notion
-
-UI Rules:
-- Clean enterprise dashboard
-- White/neutral background
-- Professional spacing
-- Subtle borders
-- Tables/cards
-- Minimal colors
-
-Avoid:
-- gradients
-- glassmorphism
-- unnecessary animations
-- landing page style UI
-
-
 ======================
 TECH STACK
 ======================
@@ -130,11 +105,6 @@ Admin ->
 /admin/dashboard
 
 
-IMPORTANT:
-
-Do NOT rebuild authentication.
-Do NOT rewrite existing architecture.
-
 
 ======================
 DATABASE MODELS
@@ -190,11 +160,6 @@ status
 matchScore
 
 
-======================
-REMAINING PHASES
-======================
-
-
 PHASE 3:
 
 Professional SaaS dashboard foundation
@@ -245,6 +210,12 @@ Filter candidates
 Shortlist/reject
 
 
+
+======================
+REMAINING PHASES
+======================
+
+
 PHASE 6:
 
 Admin module
@@ -289,18 +260,3 @@ PHASE 9:
 Notifications
 Polish
 Deployment
-
-
-======================
-IMPORTANT RULE
-======================
-
-Work phase-by-phase.
-
-Never jump ahead.
-
-Do not create future modules unless requested.
-
-Do not redesign existing UI.
-
-Preserve current architecture.
