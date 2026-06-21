@@ -131,6 +131,20 @@ const RecruiterApplicants = () => {
                           <div className="ml-4">
                             <div className="text-sm font-medium text-gray-900">{app.student.name}</div>
                             <div className="text-sm text-gray-500">{app.student.email}</div>
+                            {app.matchDetails && (
+                              <div className="mt-2 space-y-1">
+                                <div className="text-sm font-semibold text-orange-600">
+                                  Match Score: {app.matchDetails.matchScore}%
+                                </div>
+                                {app.matchDetails.matchedSkills && app.matchDetails.matchedSkills.length > 0 && (
+                                  <div className="text-xs text-gray-600">
+                                    <span className="font-medium">Skills matched:</span>
+                                    <br/>
+                                    {app.matchDetails.matchedSkills.join(', ')}
+                                  </div>
+                                )}
+                              </div>
+                            )}
                           </div>
                         </div>
                       </td>

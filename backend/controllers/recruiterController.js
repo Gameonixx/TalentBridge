@@ -1,5 +1,6 @@
 const Job = require('../models/Job');
 const Application = require('../models/Application');
+const { calculateMatchScore } = require('../services/matchService');
 
 // @desc    Get recruiter dashboard stats
 // @route   GET /api/recruiter/dashboard
@@ -69,7 +70,15 @@ const getJobApplicants = async (req, res, next) => {
       .populate('student', 'name email profile')
       .sort({ createdAt: -1 });
 
-    res.status(200).json(applications);
+    const applicationsWithScores = applications.map(app => {
+      const appObj = app.toObject();
+      if (appObj.student && appObj.student.profile) {
+        appObj.matchDetails = calculateMatchScore(appObj.student.profile, job);
+      }
+      return appObj;
+    });
+
+    res.status(200).json(applicationsWithScores);
   } catch (error) {
     next(error);
   }

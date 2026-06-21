@@ -29,6 +29,12 @@ const jobService = {
   deleteJob: async (jobId) => {
     const response = await api.delete(`/api/jobs/${jobId}`);
     return response.data;
+  },
+
+  // Get match score for a specific job (Student only)
+  getJobMatch: async (jobId) => {
+    const response = await api.get(`/api/match/job/${jobId}`);
+    return response.data;
   }
 };
 

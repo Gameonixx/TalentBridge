@@ -12,6 +12,8 @@ const StudentJobs = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [applying, setApplying] = useState({});
+  const [matchData, setMatchData] = useState({});
+  const [loadingMatches, setLoadingMatches] = useState({});
 
   useEffect(() => {
     fetchJobs();
@@ -22,10 +24,26 @@ const StudentJobs = () => {
       setLoading(true);
       const data = await jobService.getJobs();
       setJobs(data);
+      // Fetch match data for all jobs
+      data.forEach(job => {
+        fetchMatchScore(job._id);
+      });
     } catch (err) {
       setError('Failed to load jobs. Please try again later.');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchMatchScore = async (jobId) => {
+    try {
+      setLoadingMatches(prev => ({ ...prev, [jobId]: true }));
+      const match = await jobService.getJobMatch(jobId);
+      setMatchData(prev => ({ ...prev, [jobId]: match }));
+    } catch (err) {
+      console.error('Failed to fetch match for job', jobId);
+    } finally {
+      setLoadingMatches(prev => ({ ...prev, [jobId]: false }));
     }
   };
 
@@ -70,7 +88,14 @@ const StudentJobs = () => {
                 <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
                   <div className="flex-1 space-y-4">
                     <div>
-                      <h2 className="text-xl font-semibold text-gray-900">{job.title}</h2>
+                      <div className="flex flex-wrap items-center gap-3">
+                        <h2 className="text-xl font-semibold text-gray-900">{job.title}</h2>
+                        {matchData[job._id] && (
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-orange-100 text-orange-800">
+                            🔥 {matchData[job._id].matchScore}% Match
+                          </span>
+                        )}
+                      </div>
                       <p className="text-lg text-primary-600 font-medium">{job.company || 'Company Name TBA'}</p>
                     </div>
 
@@ -99,13 +124,44 @@ const StudentJobs = () => {
 
                     <div>
                       <h3 className="text-sm font-medium text-gray-900 mb-2">Requirements & Skills</h3>
-                      <div className="flex flex-wrap gap-2">
-                        {job.requirements?.map((skill, idx) => (
-                          <span key={idx} className="px-2.5 py-1 rounded-md text-xs font-medium bg-gray-100 text-gray-700">
-                            {skill}
-                          </span>
-                        ))}
-                      </div>
+                      {loadingMatches[job._id] ? (
+                        <span className="text-sm text-gray-500 animate-pulse">Calculating AI Match...</span>
+                      ) : matchData[job._id] ? (
+                        <div className="space-y-3">
+                          {matchData[job._id].matchedSkills.length > 0 && (
+                            <div>
+                              <span className="text-xs font-semibold text-green-700 block mb-1">Matched:</span>
+                              <div className="flex flex-wrap gap-2">
+                                {matchData[job._id].matchedSkills.map((skill, idx) => (
+                                  <span key={idx} className="px-2.5 py-1 rounded-md text-xs font-medium bg-green-50 text-green-700 border border-green-200">
+                                    {skill}
+                                  </span>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                          {matchData[job._id].missingSkills.length > 0 && (
+                            <div>
+                              <span className="text-xs font-semibold text-red-700 block mb-1">Missing:</span>
+                              <div className="flex flex-wrap gap-2">
+                                {matchData[job._id].missingSkills.map((skill, idx) => (
+                                  <span key={idx} className="px-2.5 py-1 rounded-md text-xs font-medium bg-red-50 text-red-700 border border-red-200">
+                                    {skill}
+                                  </span>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      ) : (
+                        <div className="flex flex-wrap gap-2">
+                          {job.requirements?.map((skill, idx) => (
+                            <span key={idx} className="px-2.5 py-1 rounded-md text-xs font-medium bg-gray-100 text-gray-700">
+                              {skill}
+                            </span>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   </div>
 
