@@ -1,8 +1,30 @@
-import { FileText, CheckCircle, Calendar, User } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { FileText, CheckCircle, Calendar, User, Megaphone } from 'lucide-react';
 import StatsCard from '../components/StatsCard';
 import DataTable from '../components/DataTable';
+import { Card, CardHeader, CardTitle, CardContent } from '../components/Card';
+import announcementService from '../services/announcementService';
 
 export const StudentDashboard = () => {
+  const [announcements, setAnnouncements] = useState([]);
+
+  useEffect(() => {
+    const fetchAnnouncements = async () => {
+      try {
+        const data = await announcementService.getAnnouncements();
+        const parsedAnnouncements = Array.isArray(data) ? data
+          : Array.isArray(data?.announcements) ? data.announcements
+          : Array.isArray(data?.data?.announcements) ? data.data.announcements
+          : Array.isArray(data?.data) ? data.data
+          : [];
+        setAnnouncements(parsedAnnouncements);
+      } catch (error) {
+        console.error('Error fetching announcements:', error);
+      }
+    };
+    fetchAnnouncements();
+  }, []);
+
   const columns = [
     { header: 'Company', accessor: 'company' },
     { header: 'Role', accessor: 'role' },
@@ -32,6 +54,36 @@ export const StudentDashboard = () => {
         <StatsCard title="Shortlisted" value="3" icon={CheckCircle} trend={12} />
         <StatsCard title="Interviews" value="1" icon={Calendar} trend={0} />
         <StatsCard title="Profile Completion" value="85%" icon={User} trend={5} />
+      </div>
+
+      <div className="mt-8">
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Megaphone className="w-5 h-5 text-indigo-600" />
+              Placement Announcements
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {Array.isArray(announcements) && announcements.length > 0 ? (
+                announcements.map((ann) => (
+                  <div key={ann._id} className="p-4 bg-indigo-50/50 rounded-lg border border-indigo-100">
+                    <div className="flex justify-between items-start mb-1">
+                      <h4 className="font-semibold text-gray-900">{ann.title}</h4>
+                      <span className="text-xs text-gray-500 font-medium">{new Date(ann.createdAt).toLocaleDateString()}</span>
+                    </div>
+                    <p className="text-sm text-gray-600 whitespace-pre-line">{ann.message}</p>
+                  </div>
+                ))
+              ) : (
+                <div className="text-center py-6 text-gray-500 text-sm">
+                  No announcements yet
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
       <div className="mt-8">

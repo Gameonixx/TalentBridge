@@ -10,6 +10,8 @@ const studentRoutes = require('./routes/studentRoutes');
 const applicationRoutes = require('./routes/applicationRoutes');
 const recruiterRoutes = require('./routes/recruiterRoutes');
 const matchRoutes = require('./routes/matchRoutes');
+const adminRoutes = require('./routes/adminRoutes');
+const announcementRoutes = require('./routes/announcementRoutes');
 
 dotenv.config();
 
@@ -40,6 +42,8 @@ app.use('/api/student', studentRoutes);
 app.use('/api/applications', applicationRoutes);
 app.use('/api/recruiter', recruiterRoutes);
 app.use('/api/match', matchRoutes);
+app.use('/api/admin', adminRoutes);
+app.use('/api/announcements', announcementRoutes);
 
 // Error Handling Middleware
 app.use(errorHandler);
