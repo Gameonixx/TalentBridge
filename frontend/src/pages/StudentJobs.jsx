@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from '../components/Card';
 import Button from '../components/Button';
-import LoadingState from '../components/LoadingState';
 import EmptyState from '../components/EmptyState';
+import { DashboardSkeleton } from '../components/SkeletonLoader';
+import toast from 'react-hot-toast';
 import jobService from '../services/jobService';
 import applicationService from '../services/applicationService';
 import { Briefcase, MapPin, DollarSign, Calendar, GraduationCap } from 'lucide-react';
@@ -29,7 +30,7 @@ const StudentJobs = () => {
         fetchMatchScore(job._id);
       });
     } catch (err) {
-      setError('Failed to load jobs. Please try again later.');
+      toast.error('Failed to load jobs. Please try again later.');
     } finally {
       setLoading(false);
     }
@@ -56,14 +57,15 @@ const StudentJobs = () => {
       setJobs(prevJobs => prevJobs.map(job => 
         job._id === jobId ? { ...job, hasApplied: true } : job
       ));
+      toast.success('Successfully applied for the job!');
     } catch (err) {
-      alert(err.response?.data?.message || 'Failed to apply for this job.');
+      toast.error(err.response?.data?.message || 'Failed to apply for this job.');
     } finally {
       setApplying(prev => ({ ...prev, [jobId]: false }));
     }
   };
 
-  if (loading) return <LoadingState message="Loading available jobs..." />;
+  if (loading) return <DashboardSkeleton />;
   
   if (error) return (
     <div className="p-8 text-center text-red-600 bg-red-50 rounded-lg border border-red-100">

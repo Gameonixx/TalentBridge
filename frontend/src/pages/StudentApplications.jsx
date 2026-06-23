@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from '../components/Card';
-import LoadingState from '../components/LoadingState';
 import EmptyState from '../components/EmptyState';
+import { DashboardSkeleton } from '../components/SkeletonLoader';
 import applicationService from '../services/applicationService';
+import toast from 'react-hot-toast';
 import { Briefcase, CheckCircle2, Clock, CalendarCheck, XCircle } from 'lucide-react';
 
 const TRACKING_STEPS = [
@@ -28,7 +29,7 @@ const StudentApplications = () => {
       const data = await applicationService.getMyApplications();
       setApplications(data);
     } catch (err) {
-      setError('Failed to load applications. Please try again later.');
+      toast.error('Failed to load applications. Please try again later.');
     } finally {
       setLoading(false);
     }
@@ -46,7 +47,7 @@ const StudentApplications = () => {
     return 'pending';
   };
 
-  if (loading) return <LoadingState message="Loading your applications..." />;
+  if (loading) return <DashboardSkeleton />;
   
   if (error) return (
     <div className="p-8 text-center text-red-600 bg-red-50 rounded-lg border border-red-100">

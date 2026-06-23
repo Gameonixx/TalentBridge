@@ -2,6 +2,7 @@ import React, { useState, useContext } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import { Mail, Lock, AlertCircle } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -28,6 +29,7 @@ const Login = () => {
       else if (userData.role === 'recruiter') navigate('/recruiter/dashboard');
       else if (userData.role === 'admin') navigate('/admin/dashboard');
       else navigate('/dashboard');
+      toast.success(`Welcome back!`);
     } catch (err) {
       setError(err.response?.data?.message || 'Invalid email or password');
     } finally {

@@ -3,8 +3,10 @@ import { useSearchParams } from 'react-router-dom';
 import jobService from '../services/jobService';
 import recruiterService from '../services/recruiterService';
 import { Card, CardHeader, CardTitle, CardContent } from '../components/Card';
-import LoadingState from '../components/LoadingState';
+import EmptyState from '../components/EmptyState';
+import { DashboardSkeleton } from '../components/SkeletonLoader';
 import { User, FileText, CheckCircle, XCircle, Calendar, Link as LinkIcon, Sparkles, BrainCircuit } from 'lucide-react';
+import toast from 'react-hot-toast';
 import aiService from '../services/aiService';
 
 const STATUS_FLOW = ['Applied', 'Under Review', 'Shortlisted', 'Interview Scheduled', 'Selected', 'Rejected'];
@@ -50,7 +52,7 @@ const RecruiterApplicants = () => {
         setSelectedJobId(data[0]._id);
       }
     } catch (err) {
-      setError('Failed to load jobs.');
+      toast.error('Failed to load jobs.');
     } finally {
       setLoadingJobs(false);
     }
@@ -62,7 +64,7 @@ const RecruiterApplicants = () => {
       const data = await recruiterService.getJobApplicants(jobId);
       setApplicants(data);
     } catch (err) {
-      setError('Failed to load applicants for this job.');
+      toast.error('Failed to load applicants for this job.');
     } finally {
       setLoadingApplicants(false);
     }
@@ -74,15 +76,16 @@ const RecruiterApplicants = () => {
       setApplicants(applicants.map(app => 
         app._id === applicationId ? { ...app, status: newStatus } : app
       ));
+      toast.success('Status updated successfully');
     } catch (err) {
-      alert('Failed to update status');
+      toast.error('Failed to update status');
     }
   };
 
   const openResume = (candidate) => {
     console.log("Candidate resume:", candidate.profile?.resumeUrl);
     if (!candidate.profile?.resumeUrl) {
-      alert("No resume uploaded");
+      toast.error("No resume uploaded by the candidate");
       return;
     }
     window.open("http://localhost:5000" + candidate.profile.resumeUrl, "_blank");
@@ -98,7 +101,7 @@ const RecruiterApplicants = () => {
       const data = await aiService.getStudentIntelligence(candidateId);
       setAiReport(data.report);
     } catch (err) {
-      alert('Failed to load AI Intelligence');
+      toast.error('Failed to load AI Intelligence');
     } finally {
       setLoadingAi(false);
     }
@@ -110,13 +113,13 @@ const RecruiterApplicants = () => {
       const data = await aiService.getInterviewQuestions(aiCandidate, selectedJobId);
       setAiQuestions(data.questions);
     } catch (err) {
-      alert('Failed to generate interview questions');
+      toast.error('Failed to generate interview questions');
     } finally {
       setLoadingQuestions(false);
     }
   };
 
-  if (loadingJobs) return <LoadingState message="Loading your jobs..." />;
+  if (loadingJobs) return <DashboardSkeleton />;
 
   return (
     <div className="max-w-7xl mx-auto space-y-6">
@@ -141,19 +144,17 @@ const RecruiterApplicants = () => {
         </div>
       </div>
 
-      {error && <div className="p-4 text-sm text-red-600 bg-red-50 rounded-md border border-red-200">{error}</div>}
-
       <Card>
         <CardHeader>
           <CardTitle>Candidates {applicants.length > 0 && `(${applicants.length})`}</CardTitle>
         </CardHeader>
         <CardContent>
           {loadingApplicants ? (
-            <div className="py-12 text-center text-gray-500">Loading applicants...</div>
+            <div className="py-12 text-center text-gray-500 animate-pulse">Loading applicants...</div>
           ) : !selectedJobId ? (
-            <div className="py-12 text-center text-gray-500">Please select a job to view its applicants.</div>
+            <div className="py-12"><EmptyState title="Select a Job" description="Please select a job to view its applicants." /></div>
           ) : applicants.length === 0 ? (
-            <div className="py-12 text-center text-gray-500">No applications received yet for this job.</div>
+            <div className="py-12"><EmptyState title="No Applicants" description="No applications received yet for this job." /></div>
           ) : (
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-200">

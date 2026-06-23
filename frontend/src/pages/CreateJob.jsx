@@ -6,6 +6,7 @@ import Button from '../components/Button';
 import { Card, CardHeader, CardTitle, CardContent } from '../components/Card';
 import { Briefcase, MapPin, DollarSign, List, AlertCircle, Calendar, GraduationCap, Building } from 'lucide-react';
 import { useParams } from 'react-router-dom';
+import toast from 'react-hot-toast';
 
 const CreateJob = () => {
   const { id } = useParams();
@@ -48,7 +49,7 @@ const CreateJob = () => {
         deadline: job.deadline ? new Date(job.deadline).toISOString().split('T')[0] : ''
       });
     } catch (err) {
-      setError('Failed to fetch job details');
+      toast.error('Failed to fetch job details');
     } finally {
       setLoading(false);
     }
@@ -61,7 +62,7 @@ const CreateJob = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.title || !formData.description || !formData.requirements || !formData.company) {
-      setError('Title, company, description and requirements are required.');
+      toast.error('Title, company, description and requirements are required.');
       return;
     }
 
@@ -79,9 +80,10 @@ const CreateJob = () => {
       } else {
         await jobService.createJob(payload);
       }
+      toast.success(isEditMode ? 'Job updated successfully' : 'Job posted successfully');
       navigate('/recruiter/jobs');
     } catch (err) {
-      setError(err.response?.data?.message || `Failed to ${isEditMode ? 'update' : 'create'} job posting`);
+      toast.error(err.response?.data?.message || `Failed to ${isEditMode ? 'update' : 'create'} job posting`);
     } finally {
       setLoading(false);
     }
@@ -105,13 +107,6 @@ const CreateJob = () => {
 
         </CardHeader>
         <CardContent>
-          {error && (
-            <div className="mb-6 bg-red-50 text-red-700 p-3 rounded-md flex items-center text-sm border border-red-100">
-              <AlertCircle className="w-4 h-4 mr-2 flex-shrink-0" />
-              {error}
-            </div>
-          )}
-
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <Input

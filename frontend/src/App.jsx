@@ -1,6 +1,8 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { Toaster } from 'react-hot-toast';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
+import ErrorBoundary from './components/ErrorBoundary';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import DashboardLayout from './layouts/DashboardLayout';
@@ -13,18 +15,21 @@ import StudentApplications from './pages/StudentApplications';
 import StudentProfile from './pages/StudentProfile';
 import RecruiterJobs from './pages/RecruiterJobs';
 import RecruiterApplicants from './pages/RecruiterApplicants';
+import Unauthorized from './pages/Unauthorized';
 
 function App() {
   return (
-    <AuthProvider>
-      <Router>
-        <div className="min-h-screen bg-background">
-          <Routes>
-            {/* Public Routes */}
-            <Route path="/" element={<Navigate to="/login" replace />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/unauthorized" element={<div className="p-8 text-center text-red-500 text-2xl">Unauthorized Access</div>} />
+    <ErrorBoundary>
+      <AuthProvider>
+        <Router>
+          <div className="min-h-screen bg-background">
+            <Toaster position="top-right" />
+            <Routes>
+              {/* Public Routes */}
+              <Route path="/" element={<Navigate to="/login" replace />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+              <Route path="/unauthorized" element={<Unauthorized />} />
 
             {/* Protected Routes wrapped in DashboardLayout */}
             <Route element={<ProtectedRoute />}>
@@ -56,10 +61,11 @@ function App() {
               </Route>
             </Route>
 
-          </Routes>
-        </div>
-      </Router>
-    </AuthProvider>
+            </Routes>
+          </div>
+        </Router>
+      </AuthProvider>
+    </ErrorBoundary>
   );
 }
 

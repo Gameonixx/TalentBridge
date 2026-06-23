@@ -4,6 +4,8 @@ import Input from '../components/Input';
 import Button from '../components/Button';
 import LoadingState from '../components/LoadingState';
 import studentService from '../services/studentService';
+import toast from 'react-hot-toast';
+import { DashboardSkeleton } from '../components/SkeletonLoader';
 
 const StudentProfile = () => {
   const [profile, setProfile] = useState({
@@ -18,8 +20,6 @@ const StudentProfile = () => {
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [error, setError] = useState(null);
-  const [success, setSuccess] = useState(false);
   const [resumeFile, setResumeFile] = useState(null);
   const [uploadingResume, setUploadingResume] = useState(false);
   const [uploadError, setUploadError] = useState(null);
@@ -45,7 +45,7 @@ const StudentProfile = () => {
         linkedin: p.linkedin || ''
       });
     } catch (err) {
-      setError('Failed to load profile data.');
+      toast.error('Failed to load profile data.');
     } finally {
       setLoading(false);
     }
@@ -53,14 +53,12 @@ const StudentProfile = () => {
 
   const handleChange = (e) => {
     setProfile({ ...profile, [e.target.name]: e.target.value });
-    setSuccess(false);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       setSaving(true);
-      setError(null);
       if (resumeFile) {
         console.log("Uploading real PDF", resumeFile);
         setUploadingResume(true);
@@ -77,10 +75,9 @@ const StudentProfile = () => {
       await studentService.updateProfile(payload);
 
       await fetchProfile(); // refresh from backend
-      setSuccess(true);
-      setTimeout(() => setSuccess(false), 3000);
+      toast.success('Profile updated successfully!');
     } catch (err) {
-      setError('Failed to update profile. Please try again.');
+      toast.error('Failed to update profile. Please try again.');
       if (resumeFile) {
         setUploadError('Failed to upload and parse resume PDF.');
       }
@@ -90,7 +87,7 @@ const StudentProfile = () => {
     }
   };
 
-  if (loading) return <LoadingState message="Loading your profile..." />;
+  if (loading) return <DashboardSkeleton />;
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
@@ -100,8 +97,6 @@ const StudentProfile = () => {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        {error && <div className="p-4 text-sm text-red-600 bg-red-50 rounded-md border border-red-200">{error}</div>}
-        {success && <div className="p-4 text-sm text-green-600 bg-green-50 rounded-md border border-green-200">Profile updated successfully!</div>}
 
         <Card>
           <CardHeader>

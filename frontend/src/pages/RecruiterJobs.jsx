@@ -3,7 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import jobService from '../services/jobService';
 import { Card, CardHeader, CardTitle, CardContent } from '../components/Card';
 import Button from '../components/Button';
-import LoadingState from '../components/LoadingState';
+import { DashboardSkeleton } from '../components/SkeletonLoader';
+import EmptyState from '../components/EmptyState';
+import toast from 'react-hot-toast';
 import { Plus, Edit2, Trash2, Users } from 'lucide-react';
 
 const RecruiterJobs = () => {
@@ -22,7 +24,7 @@ const RecruiterJobs = () => {
       const data = await jobService.getJobs();
       setJobs(data);
     } catch (err) {
-      setError('Failed to fetch jobs');
+      toast.error('Failed to fetch jobs');
     } finally {
       setLoading(false);
     }
@@ -35,12 +37,13 @@ const RecruiterJobs = () => {
     try {
       await jobService.deleteJob(jobId);
       setJobs(jobs.filter(job => job._id !== jobId));
+      toast.success('Job deleted successfully');
     } catch (err) {
-      alert('Failed to delete job');
+      toast.error('Failed to delete job');
     }
   };
 
-  if (loading) return <LoadingState message="Loading your jobs..." />;
+  if (loading) return <DashboardSkeleton />;
 
   return (
     <div className="max-w-6xl mx-auto space-y-6">
@@ -55,20 +58,17 @@ const RecruiterJobs = () => {
         </Button>
       </div>
 
-      {error && <div className="p-4 text-sm text-red-600 bg-red-50 rounded-md">{error}</div>}
-
       <Card>
         <CardHeader>
           <CardTitle>All Jobs</CardTitle>
         </CardHeader>
         <CardContent>
           {jobs.length === 0 ? (
-            <div className="text-center py-12 text-gray-500">
-              <p className="mb-4">You haven't posted any jobs yet.</p>
-              <Button variant="outline" onClick={() => navigate('/recruiter/jobs/create')}>
-                Create your first job
-              </Button>
-            </div>
+            <EmptyState 
+              title="No Jobs Posted" 
+              description="You haven't posted any jobs yet."
+              action={<Button variant="outline" onClick={() => navigate('/recruiter/jobs/create')}>Create your first job</Button>}
+            />
           ) : (
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-200">

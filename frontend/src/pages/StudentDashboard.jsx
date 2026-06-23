@@ -6,6 +6,8 @@ import DataTable from '../components/DataTable';
 import { Card, CardHeader, CardTitle, CardContent } from '../components/Card';
 import announcementService from '../services/announcementService';
 import aiService from '../services/aiService';
+import EmptyState from '../components/EmptyState';
+import toast from 'react-hot-toast';
 
 export const StudentDashboard = () => {
   const { user } = useContext(AuthContext);
@@ -24,6 +26,7 @@ export const StudentDashboard = () => {
         setAnnouncements(parsedAnnouncements);
       } catch (error) {
         console.error('Error fetching announcements:', error);
+        toast.error('Failed to load announcements');
       }
     };
 
@@ -95,9 +98,7 @@ export const StudentDashboard = () => {
                   </div>
                 ))
               ) : (
-                <div className="text-center py-6 text-gray-500 text-sm">
-                  No announcements yet
-                </div>
+                <EmptyState title="No announcements yet" description="Check back later for updates from the placement cell." />
               )}
             </div>
           </CardContent>

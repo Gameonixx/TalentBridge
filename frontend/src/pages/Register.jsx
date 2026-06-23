@@ -2,6 +2,7 @@ import React, { useState, useContext } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import { User, Mail, Lock, Briefcase, GraduationCap, AlertCircle } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -40,6 +41,7 @@ const Register = () => {
       if (userData.role === 'student') navigate('/student/dashboard');
       else if (userData.role === 'recruiter') navigate('/recruiter/dashboard');
       else navigate('/dashboard');
+      toast.success('Account created successfully! Welcome to TalentBridge.');
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to create account');
     } finally {

@@ -16,3 +16,5 @@ build/
 
 # editor
 .vscode/
+
+backend/uploads/

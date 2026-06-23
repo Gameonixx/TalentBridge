@@ -6,6 +6,9 @@ import LoadingState from '../components/LoadingState';
 import Button from '../components/Button';
 import { FunnelChart, Funnel, LabelList, Tooltip, ResponsiveContainer } from 'recharts';
 import { Users, Briefcase, FileText, CheckCircle, BrainCircuit, FileUp, Sparkles, Megaphone } from 'lucide-react';
+import toast from 'react-hot-toast';
+import EmptyState from '../components/EmptyState';
+import { DashboardSkeleton } from '../components/SkeletonLoader';
 
 const AdminDashboard = () => {
   const [stats, setStats] = useState(null);
@@ -63,6 +66,7 @@ const AdminDashboard = () => {
       setAnnouncements(parsedAnnouncements);
     } catch (err) {
       setError('Failed to load dashboard data');
+      toast.error('Failed to load dashboard data');
       console.error(err);
     } finally {
       setLoading(false);
@@ -77,14 +81,15 @@ const AdminDashboard = () => {
       setAnnouncements(prev => Array.isArray(prev) ? [newAnnouncement, ...prev] : [newAnnouncement]);
       setTitle('');
       setMessage('');
+      toast.success('Announcement posted successfully');
     } catch (err) {
-      alert('Failed to post announcement');
+      toast.error('Failed to post announcement');
     } finally {
       setSubmitting(false);
     }
   };
 
-  if (loading) return <LoadingState message="Loading admin dashboard..." />;
+  if (loading) return <DashboardSkeleton />;
   if (error) return <div className="p-8 text-center text-red-600 bg-red-50 rounded-lg">{error}</div>;
 
   // Funnel data
@@ -265,7 +270,9 @@ const AdminDashboard = () => {
                   <p className="text-sm text-gray-600 mt-1">{ann.message}</p>
                 </div>
               ))}
-              {Array.isArray(announcements) && announcements.length === 0 && <p className="text-sm text-gray-500 text-center py-2">No announcements posted yet.</p>}
+              {Array.isArray(announcements) && announcements.length === 0 && (
+                <EmptyState title="No announcements" description="Post an announcement to notify students and recruiters." />
+              )}
             </div>
           </CardContent>
         </Card>
@@ -326,11 +333,13 @@ const AdminDashboard = () => {
                     </td>
                   </tr>
                 ))}
-                {Array.isArray(students) && students.length === 0 && (
-                  <tr><td colSpan="5" className="px-6 py-4 text-center text-sm text-gray-500">No students found.</td></tr>
-                )}
               </tbody>
             </table>
+            {Array.isArray(students) && students.length === 0 && (
+              <div className="p-8">
+                <EmptyState title="No students found" description="There are currently no students registered in the system." />
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>
@@ -363,11 +372,13 @@ const AdminDashboard = () => {
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{company.totalApplicants}</td>
                   </tr>
                 ))}
-                {Array.isArray(companies) && companies.length === 0 && (
-                  <tr><td colSpan="4" className="px-6 py-4 text-center text-sm text-gray-500">No recruiters found.</td></tr>
-                )}
               </tbody>
             </table>
+            {Array.isArray(companies) && companies.length === 0 && (
+              <div className="p-8">
+                <EmptyState title="No recruiters found" description="There are currently no recruiters registered in the system." />
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>

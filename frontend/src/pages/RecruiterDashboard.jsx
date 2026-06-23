@@ -7,6 +7,9 @@ import { Briefcase, Users, Plus, CheckCircle, Calendar } from 'lucide-react';
 import { Card, CardContent } from '../components/Card';
 import { Table, TableHeader, TableHead, TableBody, TableRow, TableCell } from '../components/Table';
 import Button from '../components/Button';
+import toast from 'react-hot-toast';
+import { DashboardSkeleton } from '../components/SkeletonLoader';
+import EmptyState from '../components/EmptyState';
 
 const StatsCard = ({ title, value, icon: Icon, trend }) => (
   <Card>
@@ -41,12 +44,15 @@ export const RecruiterDashboard = () => {
         setStats(data);
       } catch (error) {
         console.error('Failed to fetch dashboard data', error);
+        toast.error('Failed to load dashboard data');
       } finally {
         setLoading(false);
       }
     };
     fetchDashboardData();
   }, []);
+
+  if (loading) return <DashboardSkeleton />;
 
   return (
     <div className="space-y-6">
@@ -82,13 +88,11 @@ export const RecruiterDashboard = () => {
               <TableHead>Date Applied</TableHead>
             </TableHeader>
             <TableBody>
-              {loading ? (
+              {stats.recentApplicants.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan="4" className="text-center text-gray-500">Loading jobs...</TableCell>
-                </TableRow>
-              ) : stats.recentApplicants.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan="4" className="text-center text-gray-500">No recent applicants.</TableCell>
+                  <TableCell colSpan="4" className="p-0">
+                    <EmptyState title="No applicants yet" description="You don't have any recent applicants." />
+                  </TableCell>
                 </TableRow>
               ) : (
                 stats.recentApplicants.map((applicant) => (
