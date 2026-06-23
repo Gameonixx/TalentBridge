@@ -1,12 +1,16 @@
-import React, { useState, useEffect } from 'react';
-import { FileText, CheckCircle, Calendar, User, Megaphone } from 'lucide-react';
+import React, { useState, useEffect, useContext } from 'react';
+import { AuthContext } from '../context/AuthContext';
+import { FileText, CheckCircle, Calendar, User, Megaphone, Target } from 'lucide-react';
 import StatsCard from '../components/StatsCard';
 import DataTable from '../components/DataTable';
 import { Card, CardHeader, CardTitle, CardContent } from '../components/Card';
 import announcementService from '../services/announcementService';
+import aiService from '../services/aiService';
 
 export const StudentDashboard = () => {
+  const { user } = useContext(AuthContext);
   const [announcements, setAnnouncements] = useState([]);
+  const [readiness, setReadiness] = useState(null);
 
   useEffect(() => {
     const fetchAnnouncements = async () => {
@@ -22,8 +26,22 @@ export const StudentDashboard = () => {
         console.error('Error fetching announcements:', error);
       }
     };
+
+    const fetchReadiness = async () => {
+      if (!user?._id) return;
+      try {
+        const data = await aiService.getStudentIntelligence(user._id);
+        if (data && data.readiness) {
+          setReadiness(data.readiness);
+        }
+      } catch (err) {
+        console.error('Error fetching readiness:', err);
+      }
+    };
+
     fetchAnnouncements();
-  }, []);
+    fetchReadiness();
+  }, [user]);
 
   const columns = [
     { header: 'Company', accessor: 'company' },
@@ -85,6 +103,62 @@ export const StudentDashboard = () => {
           </CardContent>
         </Card>
       </div>
+
+      {readiness && (
+        <div className="mt-8">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Target className="w-5 h-5 text-indigo-600" />
+                AI Placement Readiness
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-6">
+                <div>
+                  <div className="flex justify-between items-center mb-1">
+                    <span className="text-sm font-medium text-gray-700">Overall Score</span>
+                    <span className="text-sm font-bold text-indigo-600">{readiness.overallScore}%</span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-2.5">
+                    <div className="bg-indigo-600 h-2.5 rounded-full" style={{ width: `${readiness.overallScore}%` }}></div>
+                  </div>
+                </div>
+                
+                <div className="grid md:grid-cols-3 gap-6">
+                  <div>
+                    <div className="flex justify-between items-center mb-1">
+                      <span className="text-xs font-medium text-gray-500 uppercase tracking-wider">Resume Quality</span>
+                      <span className="text-xs font-bold text-gray-700">{readiness.resumeQuality}%</span>
+                    </div>
+                    <div className="w-full bg-gray-100 rounded-full h-2">
+                      <div className="bg-blue-500 h-2 rounded-full" style={{ width: `${readiness.resumeQuality}%` }}></div>
+                    </div>
+                  </div>
+                  <div>
+                    <div className="flex justify-between items-center mb-1">
+                      <span className="text-xs font-medium text-gray-500 uppercase tracking-wider">Skill Match</span>
+                      <span className="text-xs font-bold text-gray-700">{readiness.skillMatch}%</span>
+                    </div>
+                    <div className="w-full bg-gray-100 rounded-full h-2">
+                      <div className="bg-emerald-500 h-2 rounded-full" style={{ width: `${readiness.skillMatch}%` }}></div>
+                    </div>
+                  </div>
+                  <div>
+                    <div className="flex justify-between items-center mb-1">
+                      <span className="text-xs font-medium text-gray-500 uppercase tracking-wider">Project Strength</span>
+                      <span className="text-xs font-bold text-gray-700">{readiness.projectStrength}%</span>
+                    </div>
+                    <div className="w-full bg-gray-100 rounded-full h-2">
+                      <div className="bg-violet-500 h-2 rounded-full" style={{ width: `${readiness.projectStrength}%` }}></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
 
       <div className="mt-8">
         <DataTable 

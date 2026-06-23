@@ -145,82 +145,36 @@ const updateProfile = async (req, res, next) => {
 
 
 
-    const oldAnalysis =
-      user.profile.resumeAnalysis || defaultResumeAnalysis;
+    if (college !== undefined) user.profile.college = college;
+    if (branch !== undefined) user.profile.branch = branch;
+    if (graduationYear || year) user.profile.graduationYear = graduationYear || year;
+    if (cgpa !== undefined) user.profile.cgpa = cgpa;
+    if (githubUrl || github) user.profile.githubUrl = githubUrl || github;
+    if (linkedinUrl || linkedin) user.profile.linkedinUrl = linkedinUrl || linkedin;
 
+    // IMPORTANT: Clear AI Cache when key intelligence fields change
+    if (skills) {
+      user.profile.skills = skills;
+      user.profile.aiAnalysisCache = null;
+    }
 
+    if (experience) {
+      user.profile.experience = experience;
+      user.profile.aiAnalysisCache = null;
+    }
+    
+    if (req.body.projects) {
+      user.profile.projects = req.body.projects;
+      user.profile.aiAnalysisCache = null;
+    }
 
-    user.profile = {
-
-
-      ...user.profile,
-
-
-      college:
-        college !== undefined
-          ? college
-          : user.profile.college,
-
-
-      branch:
-        branch !== undefined
-          ? branch
-          : user.profile.branch,
-
-
-      graduationYear:
-        graduationYear ||
-        year ||
-        user.profile.graduationYear,
-
-
-      cgpa:
-        cgpa !== undefined
-          ? cgpa
-          : user.profile.cgpa,
-
-
-      skills:
-        skills ||
-        user.profile.skills,
-
-
-      resumeUrl:
-        resumeUrl ||
-        resume ||
-        user.profile.resumeUrl,
-
-
-      githubUrl:
-        githubUrl ||
-        github ||
-        user.profile.githubUrl,
-
-
-      linkedinUrl:
-        linkedinUrl ||
-        linkedin ||
-        user.profile.linkedinUrl,
-
-
-      experience:
-        experience ||
-        user.profile.experience,
-
-
-      resumeAnalysis: oldAnalysis
-
-
-    };
-
-
-
+    const newResumeUrl = resumeUrl || resume;
+    if (newResumeUrl) {
+      user.profile.resumeUrl = newResumeUrl;
+      user.profile.aiAnalysisCache = null;
+    }
 
     // URL RESUME PARSING
-
-    const newResumeUrl =
-      resumeUrl ||
-      resume;
 
 
 
@@ -353,7 +307,8 @@ const uploadResume = async (req, res, next) => {
     user.profile.resumeAnalysis =
       analysis || defaultResumeAnalysis;
 
-
+    // Clear AI cache on new resume upload
+    user.profile.aiAnalysisCache = null;
 
 
     const updatedUser =

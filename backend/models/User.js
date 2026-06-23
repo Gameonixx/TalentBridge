@@ -49,6 +49,11 @@ const userSchema = new mongoose.Schema({
         experienceKeywords: [],
         projects: []
       }
+    },
+    aiAnalysisCache: {
+      report: Object,
+      readiness: Object,
+      generatedAt: Date
     }
   },
   // Recruiter specific data

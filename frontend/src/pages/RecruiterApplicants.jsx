@@ -4,7 +4,8 @@ import jobService from '../services/jobService';
 import recruiterService from '../services/recruiterService';
 import { Card, CardHeader, CardTitle, CardContent } from '../components/Card';
 import LoadingState from '../components/LoadingState';
-import { User, FileText, CheckCircle, XCircle, Calendar, Link as LinkIcon } from 'lucide-react';
+import { User, FileText, CheckCircle, XCircle, Calendar, Link as LinkIcon, Sparkles, BrainCircuit } from 'lucide-react';
+import aiService from '../services/aiService';
 
 const STATUS_FLOW = ['Applied', 'Under Review', 'Shortlisted', 'Interview Scheduled', 'Selected', 'Rejected'];
 
@@ -18,6 +19,14 @@ const RecruiterApplicants = () => {
   const [loadingJobs, setLoadingJobs] = useState(true);
   const [loadingApplicants, setLoadingApplicants] = useState(false);
   const [error, setError] = useState('');
+
+  // AI Modal State
+  const [aiModalOpen, setAiModalOpen] = useState(false);
+  const [aiCandidate, setAiCandidate] = useState(null);
+  const [aiReport, setAiReport] = useState(null);
+  const [aiQuestions, setAiQuestions] = useState(null);
+  const [loadingAi, setLoadingAi] = useState(false);
+  const [loadingQuestions, setLoadingQuestions] = useState(false);
 
   useEffect(() => {
     fetchJobs();
@@ -77,6 +86,34 @@ const RecruiterApplicants = () => {
       return;
     }
     window.open("http://localhost:5000" + candidate.profile.resumeUrl, "_blank");
+  };
+
+  const openAiAnalysis = async (candidateId) => {
+    setAiCandidate(candidateId);
+    setAiModalOpen(true);
+    setAiReport(null);
+    setAiQuestions(null);
+    setLoadingAi(true);
+    try {
+      const data = await aiService.getStudentIntelligence(candidateId);
+      setAiReport(data.report);
+    } catch (err) {
+      alert('Failed to load AI Intelligence');
+    } finally {
+      setLoadingAi(false);
+    }
+  };
+
+  const generateQuestions = async () => {
+    setLoadingQuestions(true);
+    try {
+      const data = await aiService.getInterviewQuestions(aiCandidate, selectedJobId);
+      setAiQuestions(data.questions);
+    } catch (err) {
+      alert('Failed to generate interview questions');
+    } finally {
+      setLoadingQuestions(false);
+    }
   };
 
   if (loadingJobs) return <LoadingState message="Loading your jobs..." />;
@@ -188,17 +225,23 @@ const RecruiterApplicants = () => {
                         </div>
                       </td>
                       <td className="px-6 py-4 space-y-1">
-                        <button 
-                          onClick={() => openResume(app.student)}
-                          className="flex items-center text-sm text-primary-600 hover:text-primary-900 focus:outline-none"
-                        >
-                          <FileText className="w-4 h-4 mr-1" /> Resume
-                        </button>
-                        {app.student.profile?.linkedinUrl && (
-                          <a href={app.student.profile.linkedinUrl} target="_blank" rel="noreferrer" className="flex items-center text-sm text-primary-600 hover:text-primary-900">
-                            <LinkIcon className="w-4 h-4 mr-1" /> LinkedIn
-                          </a>
-                        )}
+                          <button 
+                            onClick={() => openResume(app.student)}
+                            className="flex items-center text-sm text-primary-600 hover:text-primary-900 focus:outline-none"
+                          >
+                            <FileText className="w-4 h-4 mr-1" /> Resume
+                          </button>
+                          {app.student.profile?.linkedinUrl && (
+                            <a href={app.student.profile.linkedinUrl} target="_blank" rel="noreferrer" className="flex items-center text-sm text-primary-600 hover:text-primary-900">
+                              <LinkIcon className="w-4 h-4 mr-1" /> LinkedIn
+                            </a>
+                          )}
+                          <button 
+                            onClick={() => openAiAnalysis(app.student._id)}
+                            className="flex items-center text-sm text-indigo-600 hover:text-indigo-900 focus:outline-none font-medium mt-1"
+                          >
+                            <Sparkles className="w-4 h-4 mr-1" /> AI Analysis
+                          </button>
                       </td>
                       <td className="px-6 py-4">
                         <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
@@ -230,6 +273,141 @@ const RecruiterApplicants = () => {
           )}
         </CardContent>
       </Card>
+
+      {/* AI Analysis Modal */}
+      {aiModalOpen && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-3xl max-h-[90vh] overflow-y-auto">
+            <div className="p-6 border-b border-gray-100 flex justify-between items-center sticky top-0 bg-white z-10">
+              <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
+                <BrainCircuit className="w-6 h-6 text-indigo-600" />
+                AI Candidate Report
+              </h2>
+              <button onClick={() => setAiModalOpen(false)} className="text-gray-400 hover:text-gray-600 focus:outline-none">
+                <XCircle className="w-6 h-6" />
+              </button>
+            </div>
+            
+            <div className="p-6">
+              {loadingAi ? (
+                <div className="py-12 flex flex-col items-center justify-center text-indigo-600">
+                  <Sparkles className="w-8 h-8 animate-pulse mb-4" />
+                  <p className="font-medium">Analyzing Candidate Intelligence...</p>
+                </div>
+              ) : aiReport ? (
+                <div className="space-y-6">
+                  {/* Summary & Recommendation */}
+                  <div className="flex flex-col md:flex-row gap-6">
+                    <div className="flex-1 space-y-2">
+                      <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider">Candidate Overview</h3>
+                      <p className="text-gray-700 leading-relaxed bg-gray-50 p-4 rounded-lg border border-gray-100">
+                        {aiReport.summary}
+                      </p>
+                    </div>
+                    <div className="md:w-64 space-y-2">
+                      <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider">Recommendation</h3>
+                      <div className={`p-4 rounded-lg border flex flex-col items-center justify-center h-full min-h-[100px] ${
+                        aiReport.recommendation === 'Strong Hire' ? 'bg-green-50 border-green-200 text-green-800' :
+                        aiReport.recommendation === 'Consider' ? 'bg-yellow-50 border-yellow-200 text-yellow-800' :
+                        'bg-red-50 border-red-200 text-red-800'
+                      }`}>
+                        <span className="text-xl font-bold text-center">{aiReport.recommendation}</span>
+                        {aiReport.score && <span className="text-sm mt-1 opacity-80">Score: {aiReport.score}</span>}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Strengths & Improvements */}
+                  <div className="grid md:grid-cols-2 gap-6">
+                    <div className="space-y-3">
+                      <h3 className="text-sm font-semibold text-green-700 uppercase tracking-wider flex items-center gap-1">
+                        <CheckCircle className="w-4 h-4" /> Strengths
+                      </h3>
+                      <ul className="space-y-2">
+                        {aiReport.strengths?.map((strength, i) => (
+                          <li key={i} className="flex items-start text-sm text-gray-700 bg-green-50/50 p-2 rounded border border-green-100">
+                            <span className="text-green-500 mr-2 mt-0.5">✓</span> {strength}
+                          </li>
+                        ))}
+                        {(!aiReport.strengths || aiReport.strengths.length === 0) && (
+                          <li className="text-sm text-gray-500 italic">No specific strengths identified.</li>
+                        )}
+                      </ul>
+                    </div>
+                    <div className="space-y-3">
+                      <h3 className="text-sm font-semibold text-red-700 uppercase tracking-wider flex items-center gap-1">
+                        <XCircle className="w-4 h-4" /> Improvement Areas
+                      </h3>
+                      <ul className="space-y-2">
+                        {aiReport.improvements?.map((imp, i) => (
+                          <li key={i} className="flex items-start text-sm text-gray-700 bg-red-50/50 p-2 rounded border border-red-100">
+                            <span className="text-red-400 mr-2 mt-0.5">•</span> {imp}
+                          </li>
+                        ))}
+                        {(!aiReport.improvements || aiReport.improvements.length === 0) && (
+                          <li className="text-sm text-gray-500 italic">No specific improvements identified.</li>
+                        )}
+                      </ul>
+                    </div>
+                  </div>
+
+                  {/* Explanations */}
+                  {aiReport.reasons && aiReport.reasons.length > 0 && (
+                    <div className="space-y-3 pt-4 border-t border-gray-100">
+                      <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider">Why this recommendation?</h3>
+                      <ul className="grid sm:grid-cols-2 gap-2">
+                        {aiReport.reasons.map((reason, idx) => (
+                          <li key={idx} className="text-sm text-gray-600 flex items-center gap-2">
+                            <div className="w-1.5 h-1.5 rounded-full bg-indigo-400"></div>
+                            {reason}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  {/* Interview Questions Generator */}
+                  <div className="pt-6 border-t border-gray-100">
+                    {!aiQuestions && !loadingQuestions && (
+                      <button 
+                        onClick={generateQuestions}
+                        className="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium flex justify-center items-center gap-2 transition-colors focus:outline-none"
+                      >
+                        <BrainCircuit className="w-5 h-5" />
+                        Generate Interview Questions
+                      </button>
+                    )}
+                    
+                    {loadingQuestions && (
+                      <div className="py-6 text-center text-indigo-600 flex flex-col items-center">
+                        <Sparkles className="w-6 h-6 animate-pulse mb-2" />
+                        <p className="text-sm font-medium">Drafting dynamic technical questions...</p>
+                      </div>
+                    )}
+
+                    {aiQuestions && (
+                      <div className="space-y-4">
+                        <h3 className="text-sm font-semibold text-indigo-800 uppercase tracking-wider flex items-center gap-2 bg-indigo-50 p-3 rounded-t-lg border-b border-indigo-100">
+                          <BrainCircuit className="w-4 h-4" /> Recommended Technical Questions
+                        </h3>
+                        <ol className="space-y-3 px-2 list-decimal list-inside">
+                          {aiQuestions.map((q, idx) => (
+                            <li key={idx} className="text-gray-800 text-sm leading-relaxed pb-2 border-b border-gray-50 last:border-0 font-medium">
+                              {q}
+                            </li>
+                          ))}
+                        </ol>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ) : (
+                <div className="py-8 text-center text-red-500">Failed to load report.</div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
