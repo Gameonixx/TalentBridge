@@ -144,7 +144,7 @@ const RecruiterApplicants = () => {
                               <div className="mt-3 p-2.5 bg-orange-50 rounded-md border border-orange-100 space-y-1.5">
                                 <div className="flex items-center justify-between">
                                   <span className="text-sm font-bold text-orange-700">
-                                    AI Match: {app.matchDetails.percentage}%
+                                    AI Score: {app.matchDetails.score}
                                   </span>
                                   {app.matchDetails.level && (
                                     <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${

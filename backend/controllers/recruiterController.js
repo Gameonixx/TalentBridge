@@ -1,6 +1,6 @@
 const Job = require('../models/Job');
 const Application = require('../models/Application');
-const { calculateMatchScore } = require('../services/matchService');
+const { calculateMatchScore } = require('../services/aiMatchEngine');
 
 // @desc    Get recruiter dashboard stats
 // @route   GET /api/recruiter/dashboard
@@ -73,9 +73,16 @@ const getJobApplicants = async (req, res, next) => {
     const applicationsWithScores = applications.map(app => {
       const appObj = app.toObject();
       if (appObj.student && appObj.student.profile) {
-        appObj.matchDetails = calculateMatchScore(appObj.student.profile, job, appObj.student.resumeAnalysis);
+        appObj.matchDetails = calculateMatchScore(appObj.student.profile, appObj.student.resumeAnalysis, job.requirements);
       }
       return appObj;
+    });
+
+    // Sort applicants automatically by highest AI score
+    applicationsWithScores.sort((a, b) => {
+      const scoreA = a.matchDetails?.score || 0;
+      const scoreB = b.matchDetails?.score || 0;
+      return scoreB - scoreA;
     });
 
     res.status(200).json(applicationsWithScores);

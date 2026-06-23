@@ -1,6 +1,6 @@
 const Job = require('../models/Job');
 const User = require('../models/User');
-const { calculateMatchScore } = require('../services/matchService');
+const { calculateMatchScore } = require('../services/aiMatchEngine');
 
 // @desc    Calculate match score for a job
 // @route   GET /api/match/job/:jobId
@@ -19,7 +19,7 @@ const getJobMatch = async (req, res, next) => {
       throw new Error('Only students can get match scores');
     }
 
-    const matchResult = calculateMatchScore(user.profile, job, user.resumeAnalysis);
+    const matchResult = calculateMatchScore(user.profile, user.resumeAnalysis, job.requirements);
     res.status(200).json(matchResult);
   } catch (error) {
     console.error('Match Calculation Error:', error);
