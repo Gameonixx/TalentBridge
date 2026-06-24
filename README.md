@@ -173,11 +173,11 @@ AI Matching Engine
 
 ## Recruiter Applicant Tracking
 
-![Recruiter](screenshots/recruiter-applicant-tracking.png)
+![Recruiter](screenshots/applicant-tracking.png)
 
 ## Recruiter AI Interview Questions
 
-![Recruiter](screenshots/recruiter-ai-interview-questions.png)
+![Recruiter](screenshots/ai-interview-questions.png)
 
 ## AI Analysis
 
