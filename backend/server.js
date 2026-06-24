@@ -26,7 +26,14 @@ const app = express();
 app.use(cors({
   origin: [
     "http://localhost:5173",
+
+    // Vercel production domain
+    "https://talent-bridge-kappa.vercel.app",
+
+    // Vercel branch deployment
     "https://talent-bridge-git-main-gameonixx-projects.vercel.app",
+
+    // Vercel preview deployment
     "https://talent-bridge-qvj6dv8s-gameonixxs-projects.vercel.app"
   ],
   credentials: true
