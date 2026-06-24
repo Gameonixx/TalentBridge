@@ -18,3 +18,5 @@ build/
 .vscode/
 
 backend/uploads/
+
+PROJECT_CONTEXT.md
