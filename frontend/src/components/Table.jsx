@@ -22,7 +22,7 @@ export const TableHead = ({ children, className = '' }) => {
   return (
     <th
       scope="col"
-      className={`px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider ${className}`}
+      className={`px-3 py-2 md:px-6 md:py-3 text-left text-[10px] md:text-xs font-medium text-gray-500 uppercase tracking-wider ${className}`}
     >
       {children}
     </th>
@@ -50,7 +50,7 @@ export const TableRow = ({ children, className = '', onClick }) => {
 
 export const TableCell = ({ children, className = '' }) => {
   return (
-    <td className={`px-6 py-4 whitespace-nowrap text-sm text-gray-700 ${className}`}>
+    <td className={`px-3 py-2 md:px-6 md:py-4 whitespace-nowrap text-xs md:text-sm text-gray-700 ${className}`}>
       {children}
     </td>
   );

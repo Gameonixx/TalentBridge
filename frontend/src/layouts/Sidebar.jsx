@@ -7,10 +7,11 @@ import {
   Users, 
   FileText, 
   Settings, 
-  Bell
+  Bell,
+  X
 } from 'lucide-react';
 
-const Sidebar = () => {
+const Sidebar = ({ isOpen, setIsOpen }) => {
   const { user } = useContext(AuthContext);
 
   if (!user) return null;
@@ -45,12 +46,28 @@ const Sidebar = () => {
   const navLinks = getNavLinks();
 
   return (
-    <div className="flex flex-col w-64 bg-surface border-r border-gray-200 h-screen fixed top-0 left-0">
-      <div className="flex items-center justify-center h-16 border-b border-gray-200 px-4">
-        <Link to={`/${user.role}/dashboard`} className="text-xl font-bold text-gray-900 tracking-tight">
-          Talent<span className="text-primary-600">Bridge</span>
-        </Link>
-      </div>
+    <>
+      {/* Mobile overlay */}
+      {isOpen && (
+        <div 
+          className="fixed inset-0 z-20 bg-gray-600 bg-opacity-75 transition-opacity md:hidden"
+          onClick={() => setIsOpen(false)}
+        ></div>
+      )}
+
+      {/* Sidebar component */}
+      <div className={`fixed inset-y-0 left-0 z-30 w-64 bg-surface border-r border-gray-200 flex flex-col transform transition-transform duration-300 ease-in-out md:translate-x-0 ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+        <div className="flex items-center justify-between h-16 border-b border-gray-200 px-4">
+          <Link to={`/${user.role}/dashboard`} className="text-xl font-bold text-gray-900 tracking-tight" onClick={() => setIsOpen && setIsOpen(false)}>
+            Talent<span className="text-primary-600">Bridge</span>
+          </Link>
+          <button 
+            className="md:hidden p-2 text-gray-400 hover:text-gray-500 rounded-md hover:bg-gray-100"
+            onClick={() => setIsOpen(false)}
+          >
+            <X className="h-6 w-6" />
+          </button>
+        </div>
 
       <div className="flex-1 overflow-y-auto py-4">
         <nav className="px-3 space-y-1">
@@ -58,6 +75,7 @@ const Sidebar = () => {
             <NavLink
               key={link.name}
               to={link.path}
+              onClick={() => setIsOpen && setIsOpen(false)}
               className={({ isActive }) =>
                 `flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors ${
                   isActive
@@ -73,9 +91,10 @@ const Sidebar = () => {
         </nav>
       </div>
 
-      <div className="p-4 border-t border-gray-200">
+      <div className="p-4 border-t border-gray-200 mt-auto">
         <NavLink
           to={`/${user.role}/settings`}
+          onClick={() => setIsOpen && setIsOpen(false)}
           className={({ isActive }) =>
             `flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors ${
               isActive
@@ -89,6 +108,7 @@ const Sidebar = () => {
         </NavLink>
       </div>
     </div>
+    </>
   );
 };
 

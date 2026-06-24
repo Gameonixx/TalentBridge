@@ -11,7 +11,7 @@ export const DataTable = ({ columns, data, title }) => {
           <thead className="text-xs text-gray-500 uppercase bg-gray-50">
             <tr>
               {columns.map((col, i) => (
-                <th key={i} className="px-6 py-3 font-medium">{col.header}</th>
+                <th key={i} className="px-3 py-2 md:px-6 md:py-3 font-medium text-[10px] md:text-xs">{col.header}</th>
               ))}
             </tr>
           </thead>
@@ -20,7 +20,7 @@ export const DataTable = ({ columns, data, title }) => {
               data.map((row, i) => (
                 <tr key={i} className="hover:bg-gray-50 transition-colors">
                   {columns.map((col, j) => (
-                    <td key={j} className="px-6 py-4 text-gray-700">
+                    <td key={j} className="px-3 py-2 md:px-6 md:py-4 text-gray-700 text-xs md:text-sm">
                       {col.render ? col.render(row) : row[col.accessor]}
                     </td>
                   ))}

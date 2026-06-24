@@ -171,27 +171,27 @@ const RecruiterApplicants = () => {
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Candidate</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Academics</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Links</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Update Status</th>
+                    <th className="px-3 py-2 md:px-6 md:py-3 text-left text-[10px] md:text-xs font-medium text-gray-500 uppercase tracking-wider">Candidate</th>
+                    <th className="px-3 py-2 md:px-6 md:py-3 text-left text-[10px] md:text-xs font-medium text-gray-500 uppercase tracking-wider">Academics</th>
+                    <th className="px-3 py-2 md:px-6 md:py-3 text-left text-[10px] md:text-xs font-medium text-gray-500 uppercase tracking-wider">Links</th>
+                    <th className="px-3 py-2 md:px-6 md:py-3 text-left text-[10px] md:text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                    <th className="px-3 py-2 md:px-6 md:py-3 text-left text-[10px] md:text-xs font-medium text-gray-500 uppercase tracking-wider">Update Status</th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
                   {applicants.map((app) => (
                     <tr key={app._id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4">
-                        <div className="flex items-center">
+                      <td className="px-3 py-2 md:px-6 md:py-4">
+                        <div className="flex flex-col sm:flex-row sm:items-center">
                           <div className="flex-shrink-0 h-10 w-10 bg-primary-100 rounded-full flex items-center justify-center">
                             <User className="h-5 w-5 text-primary-600" />
                           </div>
-                          <div className="ml-4">
+                          <div className="mt-3 sm:mt-0 sm:ml-4">
                             <div className="text-sm font-medium text-gray-900">{app.student.name}</div>
                             <div className="text-sm text-gray-500">{app.student.email}</div>
                             {app.matchDetails && (
                               <div className="mt-3 p-2.5 bg-orange-50 rounded-md border border-orange-100 space-y-1.5">
-                                <div className="flex items-center justify-between">
+                                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0">
                                   <span className="text-sm font-bold text-orange-700">
                                     AI Score: {app.matchDetails.score}
                                   </span>
@@ -229,13 +229,13 @@ const RecruiterApplicants = () => {
                           </div>
                         </div>
                       </td>
-                      <td className="px-6 py-4">
+                      <td className="px-3 py-2 md:px-6 md:py-4">
                         <div className="text-sm text-gray-900">{app.student.profile?.college || 'N/A'}</div>
                         <div className="text-sm text-gray-500">
                           {app.student.profile?.branch || 'N/A'} • CGPA: {app.student.profile?.cgpa || 'N/A'}
                         </div>
                       </td>
-                      <td className="px-6 py-4 space-y-1">
+                      <td className="px-3 py-2 md:px-6 md:py-4 space-y-1">
                         <button
                           onClick={() => openResume(app.student)}
                           className="flex items-center text-sm text-primary-600 hover:text-primary-900 focus:outline-none"
@@ -254,7 +254,7 @@ const RecruiterApplicants = () => {
                           <Sparkles className="w-4 h-4 mr-1" /> AI Analysis
                         </button>
                       </td>
-                      <td className="px-6 py-4">
+                      <td className="px-3 py-2 md:px-6 md:py-4">
                         <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${app.status === 'Applied' ? 'bg-blue-100 text-blue-800' :
                             app.status === 'Shortlisted' ? 'bg-green-100 text-green-800' :
                               app.status === 'Selected' ? 'bg-indigo-100 text-indigo-800' :
@@ -264,7 +264,7 @@ const RecruiterApplicants = () => {
                           {app.status}
                         </span>
                       </td>
-                      <td className="px-6 py-4">
+                      <td className="px-3 py-2 md:px-6 md:py-4">
                         <select
                           value={app.status}
                           onChange={(e) => handleStatusChange(app._id, e.target.value)}

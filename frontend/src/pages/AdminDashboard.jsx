@@ -288,25 +288,25 @@ const AdminDashboard = () => {
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Student</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Branch/CGPA</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">AI Profile Strength</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Resume</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                  <th className="px-3 py-2 md:px-6 md:py-3 text-left text-[10px] md:text-xs font-medium text-gray-500 uppercase tracking-wider">Student</th>
+                  <th className="px-3 py-2 md:px-6 md:py-3 text-left text-[10px] md:text-xs font-medium text-gray-500 uppercase tracking-wider">Branch/CGPA</th>
+                  <th className="px-3 py-2 md:px-6 md:py-3 text-left text-[10px] md:text-xs font-medium text-gray-500 uppercase tracking-wider">AI Profile Strength</th>
+                  <th className="px-3 py-2 md:px-6 md:py-3 text-left text-[10px] md:text-xs font-medium text-gray-500 uppercase tracking-wider">Resume</th>
+                  <th className="px-3 py-2 md:px-6 md:py-3 text-left text-[10px] md:text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {Array.isArray(students) && students.map(student => (
                   <tr key={student._id}>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-3 py-2 md:px-6 md:py-4 whitespace-nowrap">
                       <div className="text-sm font-medium text-gray-900">{student.name}</div>
                       <div className="text-sm text-gray-500">{student.email}</div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-3 py-2 md:px-6 md:py-4 whitespace-nowrap">
                       <div className="text-sm text-gray-900">{student.branch}</div>
                       <div className="text-sm text-gray-500">CGPA: {student.cgpa}</div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-3 py-2 md:px-6 md:py-4 whitespace-nowrap">
                       <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
                         student.aiProfileStrength === 'Strong' ? 'bg-green-100 text-green-800' : 
                         student.aiProfileStrength === 'Good' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'
@@ -314,14 +314,14 @@ const AdminDashboard = () => {
                         {student.aiProfileStrength}
                       </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-3 py-2 md:px-6 md:py-4 whitespace-nowrap">
                       {student.resumeUploaded ? (
                         <span className="text-xs font-medium text-green-600 flex items-center gap-1"><CheckCircle className="w-3 h-3"/> Uploaded</span>
                       ) : (
                         <span className="text-xs font-medium text-gray-400">Missing</span>
                       )}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-3 py-2 md:px-6 md:py-4 whitespace-nowrap">
                       {student.status === 'Placed' ? (
                         <div>
                           <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Placed</span>
@@ -354,22 +354,22 @@ const AdminDashboard = () => {
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Company</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Recruiter Name</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Jobs Posted</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Applicants</th>
+                  <th className="px-3 py-2 md:px-6 md:py-3 text-left text-[10px] md:text-xs font-medium text-gray-500 uppercase tracking-wider">Company</th>
+                  <th className="px-3 py-2 md:px-6 md:py-3 text-left text-[10px] md:text-xs font-medium text-gray-500 uppercase tracking-wider">Recruiter Name</th>
+                  <th className="px-3 py-2 md:px-6 md:py-3 text-left text-[10px] md:text-xs font-medium text-gray-500 uppercase tracking-wider">Jobs Posted</th>
+                  <th className="px-3 py-2 md:px-6 md:py-3 text-left text-[10px] md:text-xs font-medium text-gray-500 uppercase tracking-wider">Total Applicants</th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {Array.isArray(companies) && companies.map(company => (
                   <tr key={company._id}>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{company.company}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <td className="px-3 py-2 md:px-6 md:py-4 whitespace-nowrap text-sm font-medium text-gray-900">{company.company}</td>
+                    <td className="px-3 py-2 md:px-6 md:py-4 whitespace-nowrap text-sm text-gray-500">
                       <div>{company.name}</div>
                       <div className="text-xs">{company.email}</div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{company.jobsPosted}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{company.totalApplicants}</td>
+                    <td className="px-3 py-2 md:px-6 md:py-4 whitespace-nowrap text-sm text-gray-500">{company.jobsPosted}</td>
+                    <td className="px-3 py-2 md:px-6 md:py-4 whitespace-nowrap text-sm text-gray-500">{company.totalApplicants}</td>
                   </tr>
                 ))}
               </tbody>

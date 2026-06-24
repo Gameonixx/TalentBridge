@@ -67,7 +67,7 @@ export const RecruiterDashboard = () => {
         </Button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatsCard title="Active Jobs" value={stats.activeJobs} icon={Briefcase} />
         <StatsCard title="Total Applications" value={stats.totalApplications} icon={Users} />
         <StatsCard title="Shortlisted" value={stats.shortlisted} icon={CheckCircle} />

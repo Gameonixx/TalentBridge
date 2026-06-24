@@ -39,7 +39,7 @@ const Login = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background px-4 sm:px-6 lg:px-8">
-      <div className="w-full max-w-md bg-surface p-8 rounded-lg border border-gray-200 shadow-sm">
+      <div className="w-full max-w-md bg-surface p-6 sm:p-8 rounded-lg border border-gray-200 shadow-sm">
         <div className="mb-8 text-center">
           <h1 className="text-2xl font-semibold text-gray-900 tracking-tight">Welcome back</h1>
           <p className="text-sm text-gray-500 mt-2">Sign in to your TalentBridge account</p>
