@@ -23,21 +23,35 @@ const app = express();
 
 // Middleware
 // Middleware
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://talent-bridge-kappa.vercel.app",
+  "https://talent-bridge-git-main-gameonixx-projects.vercel.app",
+  "https://talent-bridge-jzfyl1q97-gameonixxs-projects.vercel.app"
+];
+
 app.use(cors({
-  origin: [
-    "http://localhost:5173",
+  origin: function (origin, callback) {
 
-    // Vercel production domain
-    "https://talent-bridge-kappa.vercel.app",
+    // allow tools like Postman + server requests
+    if (!origin) {
+      return callback(null, true);
+    }
 
-    // Vercel branch deployment
-    "https://talent-bridge-git-main-gameonixx-projects.vercel.app",
+    // allow fixed domains + all Vercel previews
+    if (
+      allowedOrigins.includes(origin) ||
+      origin.endsWith(".vercel.app")
+    ) {
+      return callback(null, true);
+    }
 
-    // Vercel preview deployment
-    "https://talent-bridge-qvj6dv8s-gameonixxs-projects.vercel.app"
-  ],
+    return callback(new Error("Not allowed by CORS"));
+  },
+
   credentials: true
 }));
+
 
 app.use(express.json());
 app.use(
