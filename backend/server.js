@@ -22,7 +22,15 @@ connectDB();
 const app = express();
 
 // Middleware
-app.use(cors());
+// Middleware
+app.use(cors({
+  origin: [
+    "http://localhost:5173",
+    "https://talent-bridge-kappa.vercel.app"
+  ],
+  credentials: true
+}));
+
 app.use(express.json());
 app.use(
   "/uploads",
