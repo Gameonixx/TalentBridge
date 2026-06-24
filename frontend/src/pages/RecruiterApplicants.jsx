@@ -9,6 +9,8 @@ import { User, FileText, CheckCircle, XCircle, Calendar, Link as LinkIcon, Spark
 import toast from 'react-hot-toast';
 import aiService from '../services/aiService';
 
+
+
 const STATUS_FLOW = ['Applied', 'Under Review', 'Shortlisted', 'Interview Scheduled', 'Selected', 'Rejected'];
 
 const RecruiterApplicants = () => {
@@ -73,7 +75,7 @@ const RecruiterApplicants = () => {
   const handleStatusChange = async (applicationId, newStatus) => {
     try {
       await recruiterService.updateApplicationStatus(applicationId, newStatus);
-      setApplicants(applicants.map(app => 
+      setApplicants(applicants.map(app =>
         app._id === applicationId ? { ...app, status: newStatus } : app
       ));
       toast.success('Status updated successfully');
@@ -83,12 +85,21 @@ const RecruiterApplicants = () => {
   };
 
   const openResume = (candidate) => {
-    console.log("Candidate resume:", candidate.profile?.resumeUrl);
     if (!candidate.profile?.resumeUrl) {
       toast.error("No resume uploaded by the candidate");
       return;
     }
-    window.open("http://localhost:5000" + candidate.profile.resumeUrl, "_blank");
+
+    const API_URL =
+      import.meta.env.VITE_API_URL || "http://localhost:5000";
+
+    const resumePath = candidate.profile.resumeUrl;
+
+    const finalResumeUrl = resumePath.startsWith("http")
+      ? resumePath
+      : `${API_URL}${resumePath}`;
+
+    window.open(finalResumeUrl, "_blank");
   };
 
   const openAiAnalysis = async (candidateId) => {
@@ -131,8 +142,8 @@ const RecruiterApplicants = () => {
       <div className="flex flex-col sm:flex-row gap-4">
         <div className="w-full sm:w-1/3">
           <label className="block text-sm font-medium text-gray-700 mb-1">Select Job Posting</label>
-          <select 
-            value={selectedJobId} 
+          <select
+            value={selectedJobId}
             onChange={(e) => setSelectedJobId(e.target.value)}
             className="block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm p-2 border"
           >
@@ -185,16 +196,15 @@ const RecruiterApplicants = () => {
                                     AI Score: {app.matchDetails.score}
                                   </span>
                                   {app.matchDetails.level && (
-                                    <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
-                                      app.matchDetails.level === 'Strong Match' ? 'bg-green-100 text-green-800' :
-                                      app.matchDetails.level === 'Moderate Match' ? 'bg-yellow-100 text-yellow-800' :
-                                      'bg-red-100 text-red-800'
-                                    }`}>
+                                    <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${app.matchDetails.level === 'Strong Match' ? 'bg-green-100 text-green-800' :
+                                        app.matchDetails.level === 'Moderate Match' ? 'bg-yellow-100 text-yellow-800' :
+                                          'bg-red-100 text-red-800'
+                                      }`}>
                                       {app.matchDetails.level}
                                     </span>
                                   )}
                                 </div>
-                                
+
                                 {app.matchDetails.reasons && app.matchDetails.reasons.length > 0 && (
                                   <div className="mt-2 text-xs text-gray-700">
                                     <div className="font-semibold mb-1 text-gray-900">Why this match:</div>
@@ -205,7 +215,7 @@ const RecruiterApplicants = () => {
                                     </ul>
                                   </div>
                                 )}
-                                
+
                                 {app.matchDetails.missingSkills && app.matchDetails.missingSkills.length > 0 && (
                                   <div className="mt-2 text-xs text-gray-700">
                                     <div className="font-semibold mb-1 text-red-700">Missing:</div>
@@ -226,32 +236,31 @@ const RecruiterApplicants = () => {
                         </div>
                       </td>
                       <td className="px-6 py-4 space-y-1">
-                          <button 
-                            onClick={() => openResume(app.student)}
-                            className="flex items-center text-sm text-primary-600 hover:text-primary-900 focus:outline-none"
-                          >
-                            <FileText className="w-4 h-4 mr-1" /> Resume
-                          </button>
-                          {app.student.profile?.linkedinUrl && (
-                            <a href={app.student.profile.linkedinUrl} target="_blank" rel="noreferrer" className="flex items-center text-sm text-primary-600 hover:text-primary-900">
-                              <LinkIcon className="w-4 h-4 mr-1" /> LinkedIn
-                            </a>
-                          )}
-                          <button 
-                            onClick={() => openAiAnalysis(app.student._id)}
-                            className="flex items-center text-sm text-indigo-600 hover:text-indigo-900 focus:outline-none font-medium mt-1"
-                          >
-                            <Sparkles className="w-4 h-4 mr-1" /> AI Analysis
-                          </button>
+                        <button
+                          onClick={() => openResume(app.student)}
+                          className="flex items-center text-sm text-primary-600 hover:text-primary-900 focus:outline-none"
+                        >
+                          <FileText className="w-4 h-4 mr-1" /> Resume
+                        </button>
+                        {app.student.profile?.linkedinUrl && (
+                          <a href={app.student.profile.linkedinUrl} target="_blank" rel="noreferrer" className="flex items-center text-sm text-primary-600 hover:text-primary-900">
+                            <LinkIcon className="w-4 h-4 mr-1" /> LinkedIn
+                          </a>
+                        )}
+                        <button
+                          onClick={() => openAiAnalysis(app.student._id)}
+                          className="flex items-center text-sm text-indigo-600 hover:text-indigo-900 focus:outline-none font-medium mt-1"
+                        >
+                          <Sparkles className="w-4 h-4 mr-1" /> AI Analysis
+                        </button>
                       </td>
                       <td className="px-6 py-4">
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                          app.status === 'Applied' ? 'bg-blue-100 text-blue-800' :
-                          app.status === 'Shortlisted' ? 'bg-green-100 text-green-800' :
-                          app.status === 'Selected' ? 'bg-indigo-100 text-indigo-800' :
-                          app.status === 'Rejected' ? 'bg-red-100 text-red-800' :
-                          'bg-purple-100 text-purple-800'
-                        }`}>
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${app.status === 'Applied' ? 'bg-blue-100 text-blue-800' :
+                            app.status === 'Shortlisted' ? 'bg-green-100 text-green-800' :
+                              app.status === 'Selected' ? 'bg-indigo-100 text-indigo-800' :
+                                app.status === 'Rejected' ? 'bg-red-100 text-red-800' :
+                                  'bg-purple-100 text-purple-800'
+                          }`}>
                           {app.status}
                         </span>
                       </td>
@@ -288,7 +297,7 @@ const RecruiterApplicants = () => {
                 <XCircle className="w-6 h-6" />
               </button>
             </div>
-            
+
             <div className="p-6">
               {loadingAi ? (
                 <div className="py-12 flex flex-col items-center justify-center text-indigo-600">
@@ -307,11 +316,10 @@ const RecruiterApplicants = () => {
                     </div>
                     <div className="md:w-64 space-y-2">
                       <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider">Recommendation</h3>
-                      <div className={`p-4 rounded-lg border flex flex-col items-center justify-center h-full min-h-[100px] ${
-                        aiReport.recommendation === 'Strong Hire' ? 'bg-green-50 border-green-200 text-green-800' :
-                        aiReport.recommendation === 'Consider' ? 'bg-yellow-50 border-yellow-200 text-yellow-800' :
-                        'bg-red-50 border-red-200 text-red-800'
-                      }`}>
+                      <div className={`p-4 rounded-lg border flex flex-col items-center justify-center h-full min-h-[100px] ${aiReport.recommendation === 'Strong Hire' ? 'bg-green-50 border-green-200 text-green-800' :
+                          aiReport.recommendation === 'Consider' ? 'bg-yellow-50 border-yellow-200 text-yellow-800' :
+                            'bg-red-50 border-red-200 text-red-800'
+                        }`}>
                         <span className="text-xl font-bold text-center">{aiReport.recommendation}</span>
                         {aiReport.score && <span className="text-sm mt-1 opacity-80">Score: {aiReport.score}</span>}
                       </div>
@@ -370,7 +378,7 @@ const RecruiterApplicants = () => {
                   {/* Interview Questions Generator */}
                   <div className="pt-6 border-t border-gray-100">
                     {!aiQuestions && !loadingQuestions && (
-                      <button 
+                      <button
                         onClick={generateQuestions}
                         className="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium flex justify-center items-center gap-2 transition-colors focus:outline-none"
                       >
@@ -378,7 +386,7 @@ const RecruiterApplicants = () => {
                         Generate Interview Questions
                       </button>
                     )}
-                    
+
                     {loadingQuestions && (
                       <div className="py-6 text-center text-indigo-600 flex flex-col items-center">
                         <Sparkles className="w-6 h-6 animate-pulse mb-2" />
